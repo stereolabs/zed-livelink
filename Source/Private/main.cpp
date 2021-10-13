@@ -77,9 +77,8 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectD
 
 
 bool IsConnected = false;
-bool isInit = false; // for fakemode
-// Streamed Data 
 
+// Streamed Data 
 StreamedCameraData StreamedCamera;
 TMap<int, StreamedSkeletonData> StreamedSkeletons;
 
@@ -97,14 +96,13 @@ int main(int argc, char **argv)
 	ERROR_CODE e = InitCamera(argc, argv);
 	if (e != ERROR_CODE::SUCCESS) {
 		cout << "Error " << e << ", exit program.\n";
-		return 1;
+		return EXIT_FAILURE;
 	}
 	cout << "Waiting for connection..." << endl;
 	//// Update static camera data. Do nothing for multicam
 	if (LiveLinkProvider.IsValid()) {
 		UpdateCameraStaticData(StreamedCamera.SubjectName);
 	}
-
 
 	//// Loop
 	while (true) {
@@ -115,29 +113,29 @@ int main(int argc, char **argv)
 				cout << "ZEDLiveLink is connected " << endl;
 				cout << "ZED Camera added : " << TCHAR_TO_UTF8(*StreamedCamera.SubjectName.ToString()) << endl;
 			}
+
+			// Grab
+			///// Update Streamed data
+			SL_RuntimeParameters rt_params;
+			rt_params.reference_frame = sl::REFERENCE_FRAME::WORLD;
+			if (StreamedCamera.Cam->Grab(rt_params) == sl::ERROR_CODE::SUCCESS) {
+				UpdateCameraFrameData(StreamedCamera.SubjectName, *StreamedCamera.Cam);
+
+#if ENABLE_OBJECT_DETECTION
+				e = PopulateSkeletonsData(StreamedCamera.Cam);
+				if (e != ERROR_CODE::SUCCESS) {
+					cout << "Error " << e << ", exit program.\n";
+					return EXIT_FAILURE;
+				}
+				for (auto& it : StreamedSkeletons) {
+					UpdateAnimationFrameData(it.Value);
+				}
+#endif
+			}
 		}
 		else if (IsConnected == true) {
 			cout << "Source ZED removed" << endl;
 			IsConnected = false;
-		}
-
-		// Grab
-		///// Update Streamed data
-		SL_RuntimeParameters rt_params;
-		rt_params.reference_frame = sl::REFERENCE_FRAME::WORLD;
-		if (StreamedCamera.Cam->Grab(rt_params) == sl::ERROR_CODE::SUCCESS) {
-			UpdateCameraFrameData(StreamedCamera.SubjectName, *StreamedCamera.Cam);
-
-#if ENABLE_OBJECT_DETECTION
-			e = PopulateSkeletonsData(StreamedCamera.Cam);
-			if (e != ERROR_CODE::SUCCESS) {
-				cout << "Error " << e << ", exit program.\n";
-				return 1;
-			}
-			for (auto& it : StreamedSkeletons) {
-				UpdateAnimationFrameData(it.Value);
-			}
-#endif
 		}
 	}
 	// Disable positional tracking and close the camera
@@ -148,7 +146,7 @@ int main(int argc, char **argv)
 	StreamedCamera.Cam->Close();
 
 	LiveLinkProvider.Reset();
-	return 1;
+	return EXIT_SUCCESS;
 }
 
 //// Initialize tool
@@ -211,17 +209,22 @@ ERROR_CODE InitCamera(int argc, char **argv)
 		std::cout << " ERROR : Enable Tracking" << std::endl;
 		return err;
 	}
+
+#if ENABLE_OBJECT_DETECTION
 	SL_ObjectDetectionParameters obj_det_params;
-	obj_det_params.enable_body_fitting = true;
+	obj_det_params.enable_body_fitting = false;
 	obj_det_params.enable_tracking = true;
 	obj_det_params.model = sl::DETECTION_MODEL::HUMAN_BODY_ACCURATE;
-	obj_det_params.body_format = sl::BODY_FORMAT::POSE_32;
+	obj_det_params.body_format = sl::BODY_FORMAT::POSE_34;
 	err = zed->EnableObjectDetection(obj_det_params);
 	if (err != ERROR_CODE::SUCCESS)
 	{
 		std::cout << "ERROR : Enable OD" << std::endl;
 		return err;
 	}
+
+#endif
+
 	return err;
 }
 
@@ -265,7 +268,7 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 {
 	ERROR_CODE e = ERROR_CODE::FAILURE;
 	SL_ObjectDetectionRuntimeParameters objectTracker_parameters_rt;
-	objectTracker_parameters_rt.detection_confidence_threshold = 40;
+	objectTracker_parameters_rt.object_confidence_threshold[(int)sl::OBJECT_CLASS::PERSON] = 20;
 	SL_Objects bodies;
 	e = zed->RetrieveObjects(objectTracker_parameters_rt, bodies);
 
@@ -275,33 +278,30 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 		return e;
 	}
 
-	std::cout << bodies.nb_object << std::endl;
-	if (bodies.is_new == 1)
+	//std::cout <<"nb detection : " <<  bodies.nb_object << std::endl;
+	TArray<int> remainingKeyList;
+	StreamedSkeletons.GetKeys(remainingKeyList);
+	for (int i = 0; i < bodies.nb_object; i++)
 	{
-		TArray<int> remainingKeyList;
-		StreamedSkeletons.GetKeys(remainingKeyList);
-		for (int i = 0; i < bodies.nb_object; i++)
+		SL_ObjectData objectData = bodies.object_list[i];
+		if (objectData.tracking_state != sl::OBJECT_TRACKING_STATE::TERMINATE)
 		{
-			SL_ObjectData objectData = bodies.object_list[i];
-			if (objectData.tracking_state != sl::OBJECT_TRACKING_STATE::TERMINATE)
+			if (!StreamedSkeletons.Contains(objectData.id))  // If it's a new ID
 			{
-				if (!StreamedSkeletons.Contains(objectData.id))  // If it's a new ID
-				{
-					UpdateSkeletonStaticData(FName(FString::FromInt(objectData.id)));
-					StreamedSkeletons.Add(objectData.id, BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts));
-				}
-				else
-				{
-					StreamedSkeletons[objectData.id] = BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts);
-					remainingKeyList.Remove(objectData.id);
-				}
+				UpdateSkeletonStaticData(FName(FString::FromInt(objectData.id)));
+				StreamedSkeletons.Add(objectData.id, BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts));
+			}
+			else
+			{
+				StreamedSkeletons[objectData.id] = BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts);
+				remainingKeyList.Remove(objectData.id);
 			}
 		}
-		for (int index = 0; index < remainingKeyList.Num(); index++)
-		{
-			LiveLinkProvider->RemoveSubject(FName(FString::FromInt(remainingKeyList[index])));
-			StreamedSkeletons.Remove(remainingKeyList[index]);
-		}
+	}
+	for (int index = 0; index < remainingKeyList.Num(); index++)
+	{
+		LiveLinkProvider->RemoveSubject(FName(FString::FromInt(remainingKeyList[index])));
+		StreamedSkeletons.Remove(remainingKeyList[index]);
 	}
 	return e;
 }

@@ -30,6 +30,8 @@ struct SL_InitParameters
 	bool sensors_required;
 	bool enable_image_enhancement;
 
+	float open_timeout_sec;
+
 	SL_InitParameters() {
 		input_type = sl::INPUT_TYPE::USB;
 		resolution = sl::RESOLUTION::HD720;
@@ -38,7 +40,7 @@ struct SL_InitParameters
 		camera_image_flip = sl::FLIP_MODE::AUTO;
 		camera_disable_self_calib = false;
 		enable_right_side_measure = false;
-		svo_real_time_mode = false;
+		svo_real_time_mode = true;
 		depth_mode = sl::DEPTH_MODE::PERFORMANCE;
 		depth_stabilization = true;
 		depth_minimum_distance = -1;
@@ -49,6 +51,7 @@ struct SL_InitParameters
 		sdk_verbose = false;
 		sensors_required = false;
 		enable_image_enhancement = true;
+		open_timeout_sec = 5.0f;
 	}
 };
 
@@ -92,13 +95,13 @@ struct SL_ObjectDetectionParameters
 	SL_BatchParameters batch_parameters;
 
 	SL_ObjectDetectionParameters() {
-		image_sync = true;
+		image_sync = false;
 		enable_tracking = true;
 		enable_mask_output = false;
 		enable_body_fitting = false;
-		model = sl::DETECTION_MODEL::MULTI_CLASS_BOX;
+		model = sl::DETECTION_MODEL::HUMAN_BODY_ACCURATE;
 		max_range = -1;
-		body_format = sl::BODY_FORMAT::POSE_32;
+		body_format = sl::BODY_FORMAT::POSE_34;
 	}
 };
 
@@ -111,7 +114,6 @@ struct SL_ObjectDetectionRuntimeParameters
 	int object_class_filter[(int)sl::OBJECT_CLASS::LAST];
 	int object_confidence_threshold[(int)sl::OBJECT_CLASS::LAST];
 
-	SL_ObjectDetectionRuntimeParameters() {}
 };
 
 struct SL_Quaternion {
@@ -186,6 +188,8 @@ Contains data of a detected object such as its bounding_box, label, id and its 3
 struct SL_ObjectData
 {
 	int id;
+	unsigned char unique_object_id[37];
+	int raw_label;
 	sl::OBJECT_CLASS label;
 	sl::OBJECT_SUBCLASS sublabel;
 	sl::OBJECT_TRACKING_STATE tracking_state;
@@ -193,7 +197,7 @@ struct SL_ObjectData
 	float confidence;
 
 	//Mask
-	sl::Mat* mask;
+	int* mask;
 
 	//Image
 	sl::float2 bounding_box_2d[4];
@@ -203,14 +207,14 @@ struct SL_ObjectData
 	sl::float3 velocity;
 	sl::float3 bounding_box[8];
 	sl::float3 head_bounding_box[8];
-	sl::float2 keypoint_2d[32];
-	sl::float3 keypoint[32];
+	sl::float2 keypoint_2d[34];
+	sl::float3 keypoint[34];
 
 	float position_covariance[6];
-	float keypoint_confidence[32];
+	float keypoint_confidence[34];
 
-	sl::float3 local_position_per_joint[32];
-	sl::float4 local_orientation_per_joint[32];
+	sl::float3 local_position_per_joint[34];
+	sl::float4 local_orientation_per_joint[34];
 	sl::float4 global_root_orientation;
 };
 

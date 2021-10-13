@@ -60,7 +60,7 @@ const TArray<FString> targetBone = {
 	"EYE_LEFT",
 	"EAR_LEFT",
 	"EYE_RIGHT",
-	"EAR_RIGHT",
+	"EAR_RIGHT"
 };
 
 const TArray<int> parentsIdx = {
