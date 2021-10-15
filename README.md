@@ -66,7 +66,7 @@ $ ./ZEDLiveLink 10028418
 5. Go to UnrealEngine/Engine/Build/BatchFiles and open a terminal.
 6. Build the plugin with the command :
  ```bash
- $ ./RunUAT.sh BuildGraph -Script=Engine/Source/Programs/zed-LiveLink-plugin/BuildZEDLinux.xml -Target="Stage ZEDLiveLink Linux"
+ $ ./RunUAT.sh BuildGraph -Script=Engine/Source/Programs/zed-livelink-plugin/BuildZEDLinux.xml -Target="Stage ZEDLiveLink Linux"
  ```
 7. The binaries will be placed in <Engine Install Folder>/Engine/Binaries/Linux/ZEDLiveLink/.
 

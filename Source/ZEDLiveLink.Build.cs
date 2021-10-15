@@ -130,7 +130,7 @@ public class ZEDLiveLink : ModuleRules
 
             foreach (string Library in Libraries)
             {
-                if (Library != Path.Combine(DirPath, "lib64/libnvrtc.so")) PublicAdditionalLibraries.Add(Library);
+                if (Library != Path.Combine(DirPath, "lib64/libnvrtc.so") && Library != Path.Combine(DirPath, "lib64/libOpenCL.so")) PublicAdditionalLibraries.Add(Library);
             }
         }
         else if (Target.Platform == UnrealTargetPlatform.Win32)
