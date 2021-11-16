@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 	cout << "Waiting for connection..." << endl;
-	//// Update static camera data. Do nothing for multicam
+	//// Update static camera data.
 	if (LiveLinkProvider.IsValid()) {
 		UpdateCameraStaticData(StreamedCamera.SubjectName);
 	}
@@ -277,31 +277,32 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 		cout << "ERROR : retrieve objects : " << e << std::endl;
 		return e;
 	}
-
-	//std::cout <<"nb detection : " <<  bodies.nb_object << std::endl;
-	TArray<int> remainingKeyList;
-	StreamedSkeletons.GetKeys(remainingKeyList);
-	for (int i = 0; i < bodies.nb_object; i++)
+	if (bodies.is_new == 1)
 	{
-		SL_ObjectData objectData = bodies.object_list[i];
-		if (objectData.tracking_state != sl::OBJECT_TRACKING_STATE::TERMINATE)
+		TArray<int> remainingKeyList;
+		StreamedSkeletons.GetKeys(remainingKeyList);
+		for (int i = 0; i < bodies.nb_object; i++)
 		{
-			if (!StreamedSkeletons.Contains(objectData.id))  // If it's a new ID
+			SL_ObjectData objectData = bodies.object_list[i];
+			if (objectData.tracking_state != sl::OBJECT_TRACKING_STATE::TERMINATE)
 			{
-				UpdateSkeletonStaticData(FName(FString::FromInt(objectData.id)));
-				StreamedSkeletons.Add(objectData.id, BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts));
-			}
-			else
-			{
-				StreamedSkeletons[objectData.id] = BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts);
-				remainingKeyList.Remove(objectData.id);
+				if (!StreamedSkeletons.Contains(objectData.id))  // If it's a new ID
+				{
+					UpdateSkeletonStaticData(FName(FString::FromInt(objectData.id)));
+					StreamedSkeletons.Add(objectData.id, BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts));
+				}
+				else
+				{
+					StreamedSkeletons[objectData.id] = BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts);
+					remainingKeyList.Remove(objectData.id);
+				}
 			}
 		}
-	}
-	for (int index = 0; index < remainingKeyList.Num(); index++)
-	{
-		LiveLinkProvider->RemoveSubject(FName(FString::FromInt(remainingKeyList[index])));
-		StreamedSkeletons.Remove(remainingKeyList[index]);
+		for (int index = 0; index < remainingKeyList.Num(); index++)
+		{
+			LiveLinkProvider->RemoveSubject(FName(FString::FromInt(remainingKeyList[index])));
+			StreamedSkeletons.Remove(remainingKeyList[index]);
+		}
 	}
 	return e;
 }
