@@ -6,10 +6,9 @@
 #include "Roles/LiveLinkAnimationTypes.h"
 #include "BonePose.h"
 
-float ULiveLinkOrientationsRemapAsset::ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData, float& offset) {
+float ULiveLinkOrientationsRemapAsset::ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData) {
     float avatarTotalTranslation = 0.f;
     float SDKTotalTranslation = 0.f;
-	float height = 0;
     for (int32 i = 23; i < 25; i++)
     {
         FTransform BoneTransform = InFrameData->Transforms[i];
@@ -18,11 +17,9 @@ float ULiveLinkOrientationsRemapAsset::ComputeRootTranslationFactor(FCompactPose
         {
             avatarTotalTranslation += OutPose[CPIndex].GetTranslation().Size();
             SDKTotalTranslation += BoneTransform.GetTranslation().Size();
-			height += BoneTransform.GetTranslation().Z;
         }
     }
 
-	offset = InFrameData->Transforms[0].GetLocation().Z - FMath::Abs(height);
     float factor = avatarTotalTranslation / SDKTotalTranslation;
     float scale = 1.f;
     FCompactPoseBoneIndex CPIndexRoot = getCPIndex(0, OutPose, TransformedBoneNames);
@@ -128,9 +125,14 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime
             // Only use position + rotation data for root. For all other bones, set rotation only.
             if (BoneName == *BoneNameMap.Find(GetTargetRootName()))
             {
-				float offset;
-                float rootTranslationFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData, offset);
+				
+                float rootTranslationFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData);
                 FVector translation = ConvertRootPosition(BoneTransform.GetTranslation());
+				
+				FCompactPoseBoneIndex hipIndex = getCPIndex(18, OutPose, TransformedBoneNames);
+				float offset = FMath::Abs( OutPose[hipIndex].GetLocation().Z);
+				UE_LOG(LogTemp, Warning, TEXT("%f || %s"), offset, *OutPose[CPIndex].GetTranslation().ToString());
+
 				translation.Z += offset;
                 translation.Z *= rootTranslationFactor;
                 OutPose[CPIndex].SetLocation(translation);
