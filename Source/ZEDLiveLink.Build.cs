@@ -76,7 +76,6 @@ public class ZEDLiveLink : ModuleRules
             string[] LibrariesNames = Directory.GetFiles(Path.Combine(DirPath, "lib"), "*.so");
 
             PrivateIncludePaths.Add(Path.Combine(DirPath, "include"));
-            //PublicLibraryPaths.Add(Path.Combine(DirPath, "lib"));
 
             foreach (string Library in LibrariesNames)
             {
@@ -126,7 +125,6 @@ public class ZEDLiveLink : ModuleRules
             string[] Libraries = Directory.GetFiles(Path.Combine(DirPath, "lib64"), "*.so");
 
             PublicIncludePaths.Add(Path.Combine(DirPath, "include"));
-            //PublicLibraryPaths.Add(Path.Combine(DirPath, "lib\\x64"));
 
             foreach (string Library in Libraries)
             {

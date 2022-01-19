@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "LiveLinkOrientationsRemapAsset.h"
@@ -6,9 +6,10 @@
 #include "Roles/LiveLinkAnimationTypes.h"
 #include "BonePose.h"
 
-float ULiveLinkOrientationsRemapAsset::ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData) {
+float ULiveLinkOrientationsRemapAsset::ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData, float& offset) {
     float avatarTotalTranslation = 0.f;
     float SDKTotalTranslation = 0.f;
+	float height = 0;
     for (int32 i = 23; i < 25; i++)
     {
         FTransform BoneTransform = InFrameData->Transforms[i];
@@ -17,14 +18,17 @@ float ULiveLinkOrientationsRemapAsset::ComputeRootTranslationFactor(FCompactPose
         {
             avatarTotalTranslation += OutPose[CPIndex].GetTranslation().Size();
             SDKTotalTranslation += BoneTransform.GetTranslation().Size();
+			height += BoneTransform.GetTranslation().Z;
         }
     }
+
+	offset = InFrameData->Transforms[0].GetLocation().Z - FMath::Abs(height);
     float factor = avatarTotalTranslation / SDKTotalTranslation;
     float scale = 1.f;
     FCompactPoseBoneIndex CPIndexRoot = getCPIndex(0, OutPose, TransformedBoneNames);
     if (CPIndexRoot != INDEX_NONE)
         scale = OutPose[CPIndexRoot].GetScale3D().Z;
-    return FMath::Abs(scale * factor);
+	return FMath::Abs(scale * factor);
 }
 
 FCompactPoseBoneIndex ULiveLinkOrientationsRemapAsset::getCPIndex(int32 idx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames){
@@ -107,9 +111,10 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime
 
     putInRefPose(OutPose, TransformedBoneNames);
     FCompactPoseBoneIndex CPIndexRoot = getCPIndex(0, OutPose, TransformedBoneNames);
-    if (CPIndexRoot != INDEX_NONE)
-        propagateRestPoseRotations(0, OutPose, TransformedBoneNames, SourceBoneParents, OutPose.GetRefPose(CPIndexRoot).GetRotation(), false);
 
+	if (CPIndexRoot != INDEX_NONE)
+        propagateRestPoseRotations(0, OutPose, TransformedBoneNames, SourceBoneParents, OutPose.GetRefPose(CPIndexRoot).GetRotation(), false);
+	
     // Iterate over remapped bone names, find the index of that bone on the skeleton, and apply the Live Link pose data.
     for (int32 i = 0; i < TransformedBoneNames.Num(); i++)
     {
@@ -119,13 +124,18 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime
         if (CPIndex != INDEX_NONE)
         {
             FQuat ConvertedLiveLinkRotation;
+
             // Only use position + rotation data for root. For all other bones, set rotation only.
             if (BoneName == *BoneNameMap.Find(GetTargetRootName()))
             {
-                float rootTranslationFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData);
+				float offset;
+                float rootTranslationFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData, offset);
                 FVector translation = ConvertRootPosition(BoneTransform.GetTranslation());
+				translation.Z += offset;
                 translation.Z *= rootTranslationFactor;
                 OutPose[CPIndex].SetLocation(translation);
+
+
                 ConvertedLiveLinkRotation = ConvertRootRotation(BoneTransform.GetRotation());
             }
             else

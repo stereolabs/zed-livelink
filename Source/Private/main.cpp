@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2020, STEREOLABS.
+// Copyright (c) 2022, STEREOLABS.
 //
 // All rights reserved.
 //
@@ -132,6 +132,9 @@ int main(int argc, char **argv)
 				}
 #endif
 			}
+			else {
+				std::cout << "Grab Failed " << std::endl;			
+			}
 		}
 		else if (IsConnected == true) {
 			cout << "Source ZED removed" << endl;
@@ -188,7 +191,7 @@ ERROR_CODE InitCamera(int argc, char **argv)
 	init_params.coordinate_system = sl::COORDINATE_SYSTEM::LEFT_HANDED_Z_UP;
 	init_params.coordinate_unit = sl::UNIT::CENTIMETER;
 	init_params.depth_mode = DEPTH_MODE::ULTRA;
-	init_params.sdk_verbose = true;
+	init_params.sdk_verbose = 1;
 	parseArgs(argc, argv, init_params, pathSVO, ip, port);
 	ERROR_CODE err = zed->Open(init_params, pathSVO.c_str(), ip.c_str(), port);
 
@@ -216,6 +219,7 @@ ERROR_CODE InitCamera(int argc, char **argv)
 	obj_det_params.enable_tracking = true;
 	obj_det_params.model = sl::DETECTION_MODEL::HUMAN_BODY_ACCURATE;
 	obj_det_params.body_format = sl::BODY_FORMAT::POSE_34;
+	obj_det_params.max_range = 20 * 100;
 	err = zed->EnableObjectDetection(obj_det_params);
 	if (err != ERROR_CODE::SUCCESS)
 	{
@@ -268,7 +272,7 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 {
 	ERROR_CODE e = ERROR_CODE::FAILURE;
 	SL_ObjectDetectionRuntimeParameters objectTracker_parameters_rt;
-	objectTracker_parameters_rt.object_confidence_threshold[(int)sl::OBJECT_CLASS::PERSON] = 20;
+	objectTracker_parameters_rt.object_confidence_threshold[(int)sl::OBJECT_CLASS::PERSON] = 70;
 	SL_Objects bodies;
 	e = zed->RetrieveObjects(objectTracker_parameters_rt, bodies);
 
@@ -284,7 +288,7 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 		for (int i = 0; i < bodies.nb_object; i++)
 		{
 			SL_ObjectData objectData = bodies.object_list[i];
-			if (objectData.tracking_state != sl::OBJECT_TRACKING_STATE::TERMINATE)
+			if (objectData.tracking_state == sl::OBJECT_TRACKING_STATE::OK)
 			{
 				if (!StreamedSkeletons.Contains(objectData.id))  // If it's a new ID
 				{

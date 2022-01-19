@@ -25,7 +25,7 @@ struct SL_InitParameters
 	sl::COORDINATE_SYSTEM coordinate_system;
 
 	int sdk_gpu_id;
-	bool sdk_verbose;
+	int sdk_verbose;
 
 	bool sensors_required;
 	bool enable_image_enhancement;
