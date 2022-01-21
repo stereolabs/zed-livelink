@@ -129,14 +129,12 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime
                 float rootTranslationFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData);
                 FVector translation = ConvertRootPosition(BoneTransform.GetTranslation());
 				
-		FCompactPoseBoneIndex hipIndex = getCPIndex(18, OutPose, TransformedBoneNames);
-		float offset = FMath::Abs( OutPose[hipIndex].GetLocation().Z);
+				FCompactPoseBoneIndex hipIndex = getCPIndex(18, OutPose, TransformedBoneNames);
+				float offset = FMath::Abs( OutPose[hipIndex].GetLocation().Z);
 
-		translation.Z += offset;
+				translation.Z += offset;
                 translation.Z *= rootTranslationFactor;
                 OutPose[CPIndex].SetLocation(translation);
-
-
                 ConvertedLiveLinkRotation = ConvertRootRotation(BoneTransform.GetRotation());
             }
             else

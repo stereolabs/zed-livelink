@@ -49,8 +49,6 @@ struct StreamedSkeletonData
 	double Timestamp;
 	TArray<FTransform> Skeleton;
 
-	sl::float4 previous_root_rotation;
-	sl::float3 previous_root_position;
 	StreamedSkeletonData() {}
 	StreamedSkeletonData(FName inSubjectName) : SubjectName(inSubjectName) {}
 };
@@ -74,7 +72,6 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* cam);
 ERROR_CODE InitCamera(int argc, char **argv);
 FTransform BuildUETransformFromZEDTransform(PoseData& pose);
 StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectData, double timestamp);
-
 
 bool IsConnected = false;
 
@@ -226,7 +223,6 @@ ERROR_CODE InitCamera(int argc, char **argv)
 		std::cout << "ERROR : Enable OD" << std::endl;
 		return err;
 	}
-
 #endif
 
 	return err;
@@ -237,9 +233,8 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectD
 {
 	StreamedSkeletonData SkeletonsData = StreamedSkeletonData(FName(FString::FromInt(objectData.id)));
 	SkeletonsData.Timestamp = timestamp;
-	TMap<FString, FVector> trackingSegment;
 	TMap<FString, FTransform> rigBoneTarget;
-	sl::float3 bodyPosition = objectData.keypoint[0]; //objectData.root_world_position;
+	sl::float3 bodyPosition = objectData.keypoint[0];
 	sl::float4 bodyRotation = objectData.global_root_orientation;
 
 	for (int i = 0; i < targetBone.Num(); i++)
@@ -293,7 +288,9 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 				if (!StreamedSkeletons.Contains(objectData.id))  // If it's a new ID
 				{
 					UpdateSkeletonStaticData(FName(FString::FromInt(objectData.id)));
-					StreamedSkeletons.Add(objectData.id, BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts));
+					StreamedSkeletonData data = BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts);
+					StreamedSkeletons.Add(objectData.id, data);
+
 				}
 				else
 				{
@@ -351,6 +348,7 @@ void UpdateSkeletonStaticData(FName SubjectName)
 		AnimationData.BoneNames.Add(FName(targetBone[i]));
 		AnimationData.BoneParents.Add(parentsIdx[i]);
 	}
+
 	LiveLinkProvider->UpdateSubjectStaticData(SubjectName, ULiveLinkAnimationRole::StaticClass(), MoveTemp(StaticData));
 }
 
@@ -365,6 +363,7 @@ void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton)
 	AnimationData.WorldTime = StreamTime;
 	AnimationData.Transforms = StreamedSkeleton.Skeleton;
 	LiveLinkProvider->UpdateSubjectFrameData(StreamedSkeleton.SubjectName, MoveTemp(FrameData));
+
 }
 
 
