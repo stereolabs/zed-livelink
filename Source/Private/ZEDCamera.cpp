@@ -193,6 +193,7 @@ bool ZEDCamera::LoadDll(FString DLLName)
 		{
 			ImportMethod_CreateCamera();
 			ImportMethod_Open();
+			ImportMethod_Close();
 			ImportMethod_GetSerialNumber();
 			ImportMethod_Grab();
 			ImportMethod_EnableTracking();
@@ -218,7 +219,7 @@ void ZEDCamera::UnloadDll() {
 }
 
 bool ZEDCamera::CreateCamera(int id, bool verbose) {
-	if (m_funcOpen == NULL)
+	if (m_funcCreateCamera == NULL)
 	{
 		return false;
 	}
@@ -237,7 +238,7 @@ sl::ERROR_CODE ZEDCamera::Open(SL_InitParameters& initParameters, const char* pa
 }
 
 void ZEDCamera::Close() {
-	if (m_funcOpen == NULL)
+	if (m_funcClose == NULL)
 	{
 		return ;
 	}
