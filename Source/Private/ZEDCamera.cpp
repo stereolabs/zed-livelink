@@ -184,6 +184,21 @@ bool ZEDCamera::ImportMethod_RetrieveObjects()
 	return false;// Return an error.
 }
 
+bool ZEDCamera::ImportMethod_SetSVOPosition()
+{
+	if (v_dllHandle != NULL)
+	{
+		m_funcSetSVOPosition = NULL;
+		FString procName = "sl_set_svo_position";// Needs to be the exact name of the DLL method.
+		m_funcSetSVOPosition = (__SetSVOPosition)FPlatformProcess::GetDllExport(v_dllHandle, *procName);
+		if (m_funcSetSVOPosition != NULL)
+		{
+			return true;
+		}
+	}
+	return false;// Return an error.
+}
+
 bool ZEDCamera::LoadDll(FString DLLName)
 {
 	if (FPaths::FileExists(DLLName))
@@ -201,6 +216,7 @@ bool ZEDCamera::LoadDll(FString DLLName)
 			ImportMethod_DisableOD();
 			ImportMethod_GetPosition();
 			ImportMethod_RetrieveObjects();
+			ImportMethod_SetSVOPosition();
 			return true;
 		}
 	}
@@ -321,6 +337,13 @@ sl::ERROR_CODE ZEDCamera::RetrieveObjects(SL_ObjectDetectionRuntimeParameters& o
 	return e;
 }
 
+void ZEDCamera::setSVOPosition(int frame_number) {
+	if (m_funcSetSVOPosition == NULL)
+	{
+		return ;
+	}
+	m_funcSetSVOPosition(camera_id, frame_number);
+}
 
 
 #endif

@@ -23,7 +23,8 @@ public class ZEDLiveLinkTarget : TargetRules
 		bCompileICU = false;
     	bIsBuildingConsoleApplication = true;
 
-        if (Target.Platform == UnrealTargetPlatform.Win64)
+
+		if (Target.Platform == UnrealTargetPlatform.Win64)
         	ExeBinariesSubFolder = "ZEDLiveLink/";
 
 		this.LaunchModuleName = "ZEDLiveLink";

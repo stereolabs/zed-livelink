@@ -38,7 +38,7 @@ IMPLEMENT_APPLICATION(ZEDLiveLinkPlugin, "ZEDLiveLink");
 using namespace sl;
 using namespace std;
 
-#define ENABLE_OBJECT_DETECTION 1
+#define ENABLE_OBJECT_DETECTION 0
 
 
 static TSharedPtr<ILiveLinkProvider> LiveLinkProvider;
@@ -115,7 +115,8 @@ int main(int argc, char **argv)
 			///// Update Streamed data
 			SL_RuntimeParameters rt_params;
 			rt_params.reference_frame = sl::REFERENCE_FRAME::WORLD;
-			if (StreamedCamera.Cam->Grab(rt_params) == sl::ERROR_CODE::SUCCESS) {
+			sl::ERROR_CODE err = StreamedCamera.Cam->Grab(rt_params);
+			if (err == sl::ERROR_CODE::SUCCESS) {
 				UpdateCameraFrameData(StreamedCamera.SubjectName, *StreamedCamera.Cam);
 
 #if ENABLE_OBJECT_DETECTION
@@ -128,6 +129,10 @@ int main(int argc, char **argv)
 					UpdateAnimationFrameData(it.Value);
 				}
 #endif
+			}
+			else if (err == sl::ERROR_CODE::END_OF_SVOFILE_REACHED) {
+				std::cout << "End of SVO reached " << std::endl;
+				StreamedCamera.Cam->setSVOPosition(0);
 			}
 			else {
 				std::cout << "Grab Failed " << std::endl;			
@@ -202,6 +207,7 @@ ERROR_CODE InitCamera(int argc, char **argv)
 
 	SL_PositionalTrackingParameters tracking_param;
 	tracking_param.set_floor_as_origin = true;
+	tracking_param.enable_pose_smoothing = true;
 
 	err = zed->EnableTracking(tracking_param);
 	if (err != ERROR_CODE::SUCCESS)
@@ -328,13 +334,14 @@ void UpdateCameraFrameData(FName SubjectName, ZEDCamera& zed)
 	FLiveLinkCameraFrameData& CameraData = *FrameData.Cast<FLiveLinkCameraFrameData>();
 	PoseData pose;
 	zed.GetPosition(pose, sl::REFERENCE_FRAME::WORLD);
+	std::cout << pose.translation.x << " | " << pose.translation.y << " | " << pose.translation.z << std::endl;
 	FTransform Pose = BuildUETransformFromZEDTransform(pose);
 	CameraData.AspectRatio = 16. / 9;
 	//CameraData.FieldOfView = zed.getCameraInformation().camera_configuration.calibration_parameters.left_cam.h_fov;
 	CameraData.ProjectionMode = ELiveLinkCameraProjectionMode::Perspective;
 	CameraData.Transform = Pose;
-	double timestamp = (pose.timestamp / 1000000000.0f);// ns to seconds
-	CameraData.WorldTime = timestamp;
+	double StreamTime = FPlatformTime::Seconds();
+	CameraData.WorldTime = StreamTime;
 	LiveLinkProvider->UpdateSubjectFrameData(SubjectName, MoveTemp(FrameData));
 }
 
