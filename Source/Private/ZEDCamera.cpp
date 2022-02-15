@@ -36,6 +36,20 @@ bool ZEDCamera::ImportMethod_CreateCamera() {
 	return false;// Return an error.
 }
 
+bool ZEDCamera::ImportMethod_GetCalibParams() {
+	if (v_dllHandle != NULL)
+	{
+		m_funcGetCalibParams = NULL;
+		FString procName = "sl_get_calibration_parameters";// Needs to be the exact name of the DLL method.
+		m_funcGetCalibParams = (__CalibParams)FPlatformProcess::GetDllExport(v_dllHandle, *procName);
+		if (m_funcGetCalibParams != NULL)
+		{
+			return true;
+		}
+	}
+	return false;// Return an error.
+}
+
 bool ZEDCamera::ImportMethod_Open()
 {
 	if (v_dllHandle != NULL)
@@ -193,6 +207,7 @@ bool ZEDCamera::LoadDll(FString DLLName)
 		{
 			ImportMethod_CreateCamera();
 			ImportMethod_Open();
+			ImportMethod_GetCalibParams();
 			ImportMethod_Close();
 			ImportMethod_GetSerialNumber();
 			ImportMethod_Grab();
@@ -234,6 +249,15 @@ sl::ERROR_CODE ZEDCamera::Open(SL_InitParameters& initParameters, const char* pa
 		return sl::ERROR_CODE::FAILURE;
 	}
 	sl::ERROR_CODE e = (sl::ERROR_CODE)m_funcOpen(camera_id, initParameters, pathSVO, ip, streamPort, outputFile, opt_settings_path, opencv_calib_path);
+	return e;
+}
+
+SL_CalibrationParameters* ZEDCamera::GetCalibrationParameters(bool raw_params) {
+	if (m_funcGetCalibParams == NULL)
+	{
+		return new SL_CalibrationParameters();
+	}
+	SL_CalibrationParameters* e = (SL_CalibrationParameters*)m_funcGetCalibParams(camera_id, raw_params);
 	return e;
 }
 

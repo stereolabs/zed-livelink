@@ -5,6 +5,49 @@
 
 #define MAX_NUMBER_OBJECT 75
 
+
+struct SL_Quaternion {
+	float x;
+	float y;
+	float z;
+	float w;
+
+	SL_Quaternion() {
+		x = 0;
+		y = 0;
+		z = 0;
+		w = 1;
+	}
+};
+
+struct SL_Vector2
+{
+	float x;
+	float y;
+};
+
+struct SL_Vector3
+{
+	float x;
+	float y;
+	float z;
+
+	SL_Vector3() {
+		x = 0;
+		y = 0;
+		z = 0;
+	}
+};
+
+struct SL_Vector4
+{
+	float x;
+	float y;
+	float z;
+	float w;
+};
+
+
 struct SL_InitParameters
 {
 	sl::INPUT_TYPE input_type;
@@ -53,6 +96,49 @@ struct SL_InitParameters
 		enable_image_enhancement = true;
 		open_timeout_sec = 5.0f;
 	}
+};
+
+/**
+* \brief Resolution
+*/
+struct SL_Resolution {
+	long long width;
+	long long height;
+};
+
+struct SL_CameraParameters {
+	float fx; /**< Focal length in pixels along x axis. */
+	float fy; /**< Focal length in pixels along y axis. */
+	float cx; /**< Optical center along x axis, defined in pixels (usually close to width/2). */
+	float cy; /**< Optical center along y axis, defined in pixels (usually close to height/2). */
+	double disto[5]; /**< Distortion factor : [ k1, k2, p1, p2, k3 ]. Radial (k1,k2,k3) and Tangential (p1,p2) distortion.*/
+	float v_fov; /**< Vertical field of view, in degrees. */
+	float h_fov; /**< Horizontal field of view, in degrees.*/
+	float d_fov; /**< Diagonal field of view, in degrees.*/
+	SL_Resolution image_size; /** size in pixels of the images given by the camera.*/
+};
+
+/**
+Holds calibration information about the current ZED's hardware, including per-sensor calibration and offsets between the two sensors.
+*/
+struct SL_CalibrationParameters
+{
+	/**
+	Intrinsic parameters of the left camera
+	*/
+	struct SL_CameraParameters left_cam;
+	/**
+	Intrinsic parameters of the right camera
+	*/
+	struct SL_CameraParameters right_cam;
+	/**
+	Left to Right camera rotation, expressed in user coordinate system and unit (defined by InitParameters).
+	*/
+	SL_Vector4 rotation;
+	/**
+	Left to Right camera translation, expressed in user coordinate system and unit (defined by InitParameters).
+	*/
+	SL_Vector3 translation;
 };
 
 /*
@@ -114,47 +200,6 @@ struct SL_ObjectDetectionRuntimeParameters
 	int object_class_filter[(int)sl::OBJECT_CLASS::LAST];
 	int object_confidence_threshold[(int)sl::OBJECT_CLASS::LAST];
 
-};
-
-struct SL_Quaternion {
-	float x;
-	float y;
-	float z;
-	float w;
-
-	SL_Quaternion() {
-		x = 0;
-		y = 0;
-		z = 0;
-		w = 1;
-	}
-};
-
-struct SL_Vector2
-{
-	float x;
-	float y;
-};
-
-struct SL_Vector3
-{
-	float x;
-	float y;
-	float z;
-
-	SL_Vector3() {
-		x = 0;
-		y = 0;
-		z = 0;
-	}
-};
-
-struct SL_Vector4
-{
-	float x;
-	float y;
-	float z;
-	float w;
 };
 
 struct SL_Pose {
