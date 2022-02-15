@@ -38,7 +38,7 @@ IMPLEMENT_APPLICATION(ZEDLiveLinkPlugin, "ZEDLiveLink");
 using namespace sl;
 using namespace std;
 
-#define ENABLE_OBJECT_DETECTION 0
+#define ENABLE_OBJECT_DETECTION 1
 
 
 static TSharedPtr<ILiveLinkProvider> LiveLinkProvider;
@@ -334,7 +334,6 @@ void UpdateCameraFrameData(FName SubjectName, ZEDCamera& zed)
 	FLiveLinkCameraFrameData& CameraData = *FrameData.Cast<FLiveLinkCameraFrameData>();
 	PoseData pose;
 	zed.GetPosition(pose, sl::REFERENCE_FRAME::WORLD);
-	std::cout << pose.translation.x << " | " << pose.translation.y << " | " << pose.translation.z << std::endl;
 	FTransform Pose = BuildUETransformFromZEDTransform(pose);
 	CameraData.AspectRatio = 16. / 9;
 	//CameraData.FieldOfView = zed.getCameraInformation().camera_configuration.calibration_parameters.left_cam.h_fov;
