@@ -28,6 +28,7 @@ typedef bool(*__CreateCamera)(int id, bool verbose);
 typedef int(*__SN)(int sn);
 typedef int(*__Grab)(int id, SL_RuntimeParameters& rt_params);
 typedef SL_CalibrationParameters*(*__CalibParams)(int id, bool raw_params);
+typedef void(*__SetSVOPosition)(int id, int frame_nb);
 
 
 class ZEDCamera {
@@ -48,6 +49,7 @@ public:
 	int GetSerialNumber();
 	sl::ERROR_CODE RetrieveObjects(SL_ObjectDetectionRuntimeParameters& od_params, SL_Objects& objs);
 	SL_CalibrationParameters* GetCalibrationParameters(bool raw_params = false);
+	void setSVOPosition(int frame_number);
 
 private:
 	void *v_dllHandle;
@@ -63,6 +65,7 @@ private:
 	__Grab m_funcGrab;
 	__SN m_funcGetSN;
 	__CalibParams m_funcGetCalibParams;
+	__SetSVOPosition m_funcSetSVOPosition;
 
 	int camera_id;
 
@@ -78,6 +81,7 @@ private:
 	bool ImportMethod_GetSerialNumber();
 	bool ImportMethod_RetrieveObjects();
 	bool ImportMethod_GetCalibParams();
+	bool ImportMethod_SetSVOPosition();
 
 	bool LoadDll(FString DLLName);
 	void UnloadDll();

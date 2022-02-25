@@ -151,6 +151,7 @@ struct SL_RuntimeParameters
 	bool enable_depth;
 	int confidence_threshold;
 	int texture_confidence_threshold;
+	bool remove_saturated_areas;
 
 	SL_RuntimeParameters() {
 		sensing_mode = sl::SENSING_MODE::STANDARD;
@@ -158,6 +159,7 @@ struct SL_RuntimeParameters
 		enable_depth = true;
 		confidence_threshold = 100;
 		texture_confidence_threshold = 100;
+		remove_saturated_areas = false;
 	}
 };
 
@@ -175,10 +177,10 @@ struct SL_ObjectDetectionParameters
 	bool enable_mask_output;
 	sl::DETECTION_MODEL model;
 	bool enable_body_fitting;
-	sl::BODY_FORMAT body_format;
 	float max_range;
-
 	SL_BatchParameters batch_parameters;
+	sl::BODY_FORMAT body_format;
+	sl::OBJECT_FILTERING_MODE filtering_mode;
 
 	SL_ObjectDetectionParameters() {
 		image_sync = false;
@@ -188,6 +190,7 @@ struct SL_ObjectDetectionParameters
 		model = sl::DETECTION_MODEL::HUMAN_BODY_ACCURATE;
 		max_range = -1;
 		body_format = sl::BODY_FORMAT::POSE_34;
+		filtering_mode = sl::OBJECT_FILTERING_MODE::NMS3D;
 	}
 };
 
