@@ -15,14 +15,13 @@ public class ZEDLiveLinkTarget : TargetRules
 		SolutionDirectory = "Programs/LiveLink";
 
     	// We only need minimal use of the engine for this plugin
-    	bBuildDeveloperTools = false;
+  	bBuildDeveloperTools = false;
 		bUseMallocProfiler = false;
 		bBuildWithEditorOnlyData = true;
-        bCompileAgainstEngine = false;
+    bCompileAgainstEngine = false;
 		bCompileAgainstCoreUObject = true;
 		bCompileICU = false;
-    	bIsBuildingConsoleApplication = true;
-
+  	bIsBuildingConsoleApplication = true;
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
         	ExeBinariesSubFolder = "ZEDLiveLink/";

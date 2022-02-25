@@ -12,7 +12,7 @@ The object detection module can be disabled in order to send only camera trackin
 ## Getting started
 
  - First, download the latest version of the ZED SDK on [stereolabs.com](https://www.stereolabs.com/developers/)
-- For more information, read the ZED [Documentation](https://www.stereolabs.com/docs/app-development/python/install/) and [API documentation](https://www.stereolabs.com/docs/api/python/)
+- For more information, read the ZED [Documentation](https://www.stereolabs.com/docs) and [API documentation](https://www.stereolabs.com/docs/api/)
 
 
 To compile the tool from source, you will require a source build of Unreal Engine.
@@ -108,9 +108,14 @@ If the ZED Source is not yet detected in UnrealEngine, enable **Enable by defaul
 
 #### On Linux
 
-If the plugin crashes at the start, try to run the ldd command onto the sl_wrapper.so library :
+If the plugin crashes at the start, try to run the ldd command onto the sl_zed_c.so library :
 
 ```bash
-$ ldd sl_wrapper.so
+$ ldd libsl_zed_c.so
 ```
 It will show all the dependencies required by the .so and allow you to install anything that might be missing (for example lib-usb).
+
+
+Note that the c wrapper used for the Live link plugin is also available here : https://github.com/stereolabs/zed-c-api.
+
+If you encounter issues running the live link plugin, do not hesitate to build the wrapper yourself and place it in the lib/win64 or /linux folder.

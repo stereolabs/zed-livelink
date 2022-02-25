@@ -91,10 +91,10 @@ struct SL_ObjectDetectionParameters
 	bool enable_mask_output;
 	sl::DETECTION_MODEL model;
 	bool enable_body_fitting;
-	sl::BODY_FORMAT body_format;
 	float max_range;
-	sl::OBJECT_FILTERING_MODE filtering_mode;
 	SL_BatchParameters batch_parameters;
+	sl::BODY_FORMAT body_format;
+	sl::OBJECT_FILTERING_MODE filtering_mode;
 
 	SL_ObjectDetectionParameters() {
 		image_sync = false;
@@ -104,7 +104,7 @@ struct SL_ObjectDetectionParameters
 		model = sl::DETECTION_MODEL::HUMAN_BODY_ACCURATE;
 		max_range = -1;
 		body_format = sl::BODY_FORMAT::POSE_34;
-		filtering_mode = sl::OBJECT_FILTERING_MODE::NMS_3D;
+		filtering_mode = sl::OBJECT_FILTERING_MODE::NMS3D;
 	}
 };
 
