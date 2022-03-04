@@ -177,9 +177,9 @@ struct SL_ObjectDetectionParameters
 	bool enable_mask_output;
 	sl::DETECTION_MODEL model;
 	bool enable_body_fitting;
+	sl::BODY_FORMAT body_format;
 	float max_range;
 	SL_BatchParameters batch_parameters;
-	sl::BODY_FORMAT body_format;
 	sl::OBJECT_FILTERING_MODE filtering_mode;
 
 	SL_ObjectDetectionParameters() {
