@@ -333,7 +333,7 @@ void ZEDCamera::DisableObjectDetection() {
 	m_funcDisableOD(camera_id);
 }
 
-sl::POSITIONAL_TRACKING_STATE ZEDCamera::GetPosition(PoseData& poseData, sl::REFERENCE_FRAME reference_frame)
+sl::POSITIONAL_TRACKING_STATE ZEDCamera::GetPosition(SL_PoseData& poseData, sl::REFERENCE_FRAME reference_frame)
 {
 	if (m_funcGetPosition == NULL)
 	{

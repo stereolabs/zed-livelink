@@ -159,7 +159,7 @@ struct SL_RuntimeParameters
 		enable_depth = true;
 		confidence_threshold = 100;
 		texture_confidence_threshold = 100;
-		remove_saturated_areas = false;
+		remove_saturated_areas = true;
 	}
 };
 
@@ -177,9 +177,9 @@ struct SL_ObjectDetectionParameters
 	bool enable_mask_output;
 	sl::DETECTION_MODEL model;
 	bool enable_body_fitting;
+	sl::BODY_FORMAT body_format;
 	float max_range;
 	SL_BatchParameters batch_parameters;
-	sl::BODY_FORMAT body_format;
 	sl::OBJECT_FILTERING_MODE filtering_mode;
 
 	SL_ObjectDetectionParameters() {
@@ -210,12 +210,15 @@ struct SL_Pose {
 	sl::float4 rotation;
 };
 
-struct PoseData {
+struct SL_PoseData {
 	bool valid;
 	unsigned long long timestamp;
 	SL_Quaternion rotation;
 	SL_Vector3 translation;
 	int pose_confidence;
+	float pose_covariance[36];
+	float twist[6];
+	float twist_covariance[36];
 };
 
 struct SL_PositionalTrackingParameters

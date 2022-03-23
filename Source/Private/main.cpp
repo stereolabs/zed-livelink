@@ -70,7 +70,7 @@ void UpdateSkeletonStaticData(FName SubjectName);
 void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton);
 ERROR_CODE PopulateSkeletonsData(ZEDCamera* cam);
 ERROR_CODE InitCamera(int argc, char **argv);
-FTransform BuildUETransformFromZEDTransform(PoseData& pose);
+FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose);
 StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectData, double timestamp);
 
 bool IsConnected = false;
@@ -165,7 +165,7 @@ void LibInit()
 }
 
 //// Convert ZED transform to UE transform
-FTransform BuildUETransformFromZEDTransform(PoseData& pose)
+FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose)
 {
 	FTransform UETransform;
 	SL_Vector3 zedTranslation = pose.translation;
@@ -230,7 +230,6 @@ ERROR_CODE InitCamera(int argc, char **argv)
 		return err;
 	}
 #endif
-
 	return err;
 }
 
@@ -276,7 +275,6 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 	objectTracker_parameters_rt.object_confidence_threshold[(int)sl::OBJECT_CLASS::PERSON] = 70;
 	SL_Objects bodies;
 	e = zed->RetrieveObjects(objectTracker_parameters_rt, bodies);
-
 	if (e != ERROR_CODE::SUCCESS)
 	{
 		cout << "ERROR : retrieve objects : " << e << std::endl;
@@ -286,6 +284,7 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 	{
 		TArray<int> remainingKeyList;
 		StreamedSkeletons.GetKeys(remainingKeyList);
+	
 		for (int i = 0; i < bodies.nb_object; i++)
 		{
 			SL_ObjectData objectData = bodies.object_list[i];
@@ -296,7 +295,6 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 					UpdateSkeletonStaticData(FName(FString::FromInt(objectData.id)));
 					StreamedSkeletonData data = BuildSkeletonsTransformFromZEDObjects(objectData, bodies.image_ts);
 					StreamedSkeletons.Add(objectData.id, data);
-
 				}
 				else
 				{
@@ -332,7 +330,7 @@ void UpdateCameraFrameData(FName SubjectName, ZEDCamera& zed)
 {
 	FLiveLinkFrameDataStruct FrameData(FLiveLinkCameraFrameData::StaticStruct());
 	FLiveLinkCameraFrameData& CameraData = *FrameData.Cast<FLiveLinkCameraFrameData>();
-	PoseData pose;
+	SL_PoseData pose;
 	zed.GetPosition(pose, sl::REFERENCE_FRAME::WORLD);
 	FTransform Pose = BuildUETransformFromZEDTransform(pose);
 	CameraData.AspectRatio = 16. / 9;

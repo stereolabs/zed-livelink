@@ -23,7 +23,7 @@ typedef void(*__DisableTracking)(int id, const char* path);
 typedef int(*__EnableOD)(int, SL_ObjectDetectionParameters& od_params);
 typedef void(*__DisableOD)(int);
 typedef void(*__DisableOD)(int id);
-typedef int(*__GetPosition)(int id, PoseData& poseData, sl::REFERENCE_FRAME reference_frame);
+typedef int(*__GetPosition)(int id, SL_PoseData& poseData, sl::REFERENCE_FRAME reference_frame);
 typedef bool(*__CreateCamera)(int id, bool verbose);
 typedef int(*__SN)(int sn);
 typedef int(*__Grab)(int id, SL_RuntimeParameters& rt_params);
@@ -45,7 +45,7 @@ public:
 	void DisableTracking(const char* path = "");
 	sl::ERROR_CODE EnableObjectDetection(SL_ObjectDetectionParameters& params);
 	void DisableObjectDetection();
-	sl::POSITIONAL_TRACKING_STATE GetPosition(PoseData& poseData, sl::REFERENCE_FRAME reference_frame);
+	sl::POSITIONAL_TRACKING_STATE GetPosition(SL_PoseData& poseData, sl::REFERENCE_FRAME reference_frame);
 	int GetSerialNumber();
 	sl::ERROR_CODE RetrieveObjects(SL_ObjectDetectionRuntimeParameters& od_params, SL_Objects& objs);
 	SL_CalibrationParameters* GetCalibrationParameters(bool raw_params = false);
