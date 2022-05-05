@@ -75,7 +75,7 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectD
 
 bool IsConnected = false;
 
-// Streamed Data 
+// Streamed Data
 StreamedCameraData StreamedCamera;
 TMap<int, StreamedSkeletonData> StreamedSkeletons;
 
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
 				StreamedCamera.Cam->setSVOPosition(0);
 			}
 			else {
-				std::cout << "Grab Failed " << std::endl;			
+				std::cout << "Grab Failed " << std::endl;
 			}
 		}
 		else if (IsConnected == true) {
@@ -218,11 +218,11 @@ ERROR_CODE InitCamera(int argc, char **argv)
 
 #if ENABLE_OBJECT_DETECTION
 	SL_ObjectDetectionParameters obj_det_params;
-	obj_det_params.enable_body_fitting = false;
+	obj_det_params.enable_body_fitting = true;
 	obj_det_params.enable_tracking = true;
 	obj_det_params.model = sl::DETECTION_MODEL::HUMAN_BODY_ACCURATE;
 	obj_det_params.body_format = sl::BODY_FORMAT::POSE_34;
-	obj_det_params.max_range = 20 * 100;
+	obj_det_params.max_range = 5 * 100;
 	err = zed->EnableObjectDetection(obj_det_params);
 	if (err != ERROR_CODE::SUCCESS)
 	{
@@ -232,7 +232,6 @@ ERROR_CODE InitCamera(int argc, char **argv)
 #endif
 	return err;
 }
-
 
 StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectData, double timestamp)
 {
@@ -284,7 +283,7 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 	{
 		TArray<int> remainingKeyList;
 		StreamedSkeletons.GetKeys(remainingKeyList);
-	
+
 		for (int i = 0; i < bodies.nb_object; i++)
 		{
 			SL_ObjectData objectData = bodies.object_list[i];
@@ -312,7 +311,7 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
 	return e;
 }
 
-//// Update Camera static data 
+//// Update Camera static data
 void UpdateCameraStaticData(FName SubjectName)
 {
 	FLiveLinkStaticDataStruct StaticData(FLiveLinkCameraStaticData::StaticStruct());
@@ -342,7 +341,7 @@ void UpdateCameraFrameData(FName SubjectName, ZEDCamera& zed)
 	LiveLinkProvider->UpdateSubjectFrameData(SubjectName, MoveTemp(FrameData));
 }
 
-//// Update Skeleton static data 
+//// Update Skeleton static data
 void UpdateSkeletonStaticData(FName SubjectName)
 {
 	FLiveLinkStaticDataStruct StaticData(FLiveLinkSkeletonStaticData::StaticStruct());
@@ -356,7 +355,7 @@ void UpdateSkeletonStaticData(FName SubjectName)
 	LiveLinkProvider->UpdateSubjectStaticData(SubjectName, ULiveLinkAnimationRole::StaticClass(), MoveTemp(StaticData));
 }
 
-//// Update Skeleton frame data 
+//// Update Skeleton frame data
 void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton)
 {
 	FLiveLinkFrameDataStruct FrameData(FLiveLinkAnimationFrameData::StaticStruct());
@@ -369,7 +368,6 @@ void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton)
 	LiveLinkProvider->UpdateSubjectFrameData(StreamedSkeleton.SubjectName, MoveTemp(FrameData));
 
 }
-
 
 void parseArgs(int argc, char **argv, SL_InitParameters& param, string& pathSVO, string& ip, int& port)
 {
