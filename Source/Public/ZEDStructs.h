@@ -256,6 +256,7 @@ struct SL_ObjectData
 	sl::float3 position;
 	sl::float3 head_position;
 	sl::float3 velocity;
+	sl::float3 dimensions;
 	sl::float3 bounding_box[8];
 	sl::float3 head_bounding_box[8];
 	sl::float2 keypoint_2d[34];
