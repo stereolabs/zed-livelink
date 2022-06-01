@@ -82,12 +82,6 @@ public class ZEDLiveLink : ModuleRules
                 PublicAdditionalLibraries.Add(Library);
             }
         }
-        else if (Target.Platform == UnrealTargetPlatform.Win32)
-        {
-            string Err = string.Format("Attempt to build against ZED SDK on unsupported platform {0}", Target.Platform);
-            System.Console.WriteLine(Err);
-            throw new BuildException(Err);
-        }
     }
 
     public void LoadCUDA(ReadOnlyTargetRules Target, string DirPath)
@@ -130,12 +124,6 @@ public class ZEDLiveLink : ModuleRules
             {
                 if (Library != Path.Combine(DirPath, "lib64/libnvrtc.so") && Library != Path.Combine(DirPath, "lib64/libOpenCL.so")) PublicAdditionalLibraries.Add(Library);
             }
-        }
-        else if (Target.Platform == UnrealTargetPlatform.Win32)
-        {
-            string Err = string.Format("Attempt to build against CUDA on unsupported platform {0}", Target.Platform);
-            System.Console.WriteLine(Err);
-            throw new BuildException(Err);
         }
     }
 
