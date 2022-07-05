@@ -15,8 +15,8 @@ class ZEDUNREALLIVELINK_API ULiveLinkOrientationsRemapAsset : public ULiveLinkRe
 	GENERATED_BODY()
 
     virtual void BuildPoseFromAnimationData(float DeltaTime, const FLiveLinkSkeletonStaticData* InSkeletonData,
-        const FLiveLinkAnimationFrameData* InFrameData,
-        FCompactPose& OutPose) override;
+    const FLiveLinkAnimationFrameData* InFrameData,
+    FCompactPose& OutPose) override;
     float ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData);
     void propagateRestPoseRotations(int32 parentIdx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, TArray<int32> SourceBoneParents, FQuat restPoseRot, bool inverse);
     void putInRefPose(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames);
@@ -34,5 +34,4 @@ class ZEDUNREALLIVELINK_API ULiveLinkOrientationsRemapAsset : public ULiveLinkRe
 
         // Cached lookup results from GetRemappedBoneName
         TMap<FName, FName> BoneNameMap;
-	
 };

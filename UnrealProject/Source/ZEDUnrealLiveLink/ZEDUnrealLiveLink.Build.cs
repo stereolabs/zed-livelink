@@ -10,6 +10,11 @@ public class ZEDUnrealLiveLink : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
+#if UE_5_0_OR_LATER
+
+		PublicDependencyModuleNames.Add("LiveLinkAnimationCore");
+#endif
+
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		// Uncomment if you are using Slate UI
