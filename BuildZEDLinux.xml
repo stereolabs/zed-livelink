@@ -3,10 +3,10 @@
   <Property Name="LocalBinaryDir" Value="$(RootDir)/Engine/Binaries/Linux"/>
   <Agent Name="ZEDLiveLink" Type="Linux">
     <Node Name="Compile UnrealHeaderTool Linux">
-      <Compile Target="UnrealHeaderTool" Platform="Linux" Configuration="Test"/>
+      <Compile Target="UnrealHeaderTool" Platform="Linux" Configuration="Test" Arguments="-precompile -nodebuginfo"/>
     </Node>
     <Node Name="Compile ZEDLiveLink Linux" Requires="Compile UnrealHeaderTool Linux">
-      <Compile Target="ZEDLiveLink" Platform="Linux" Configuration="Test"/>
+      <Compile Target="ZEDLiveLink" Platform="Linux" Configuration="Test" />
     </Node>
     <Node Name="Stage ZEDLiveLink Linux" Requires="Compile ZEDLiveLink Linux">
      <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink" />

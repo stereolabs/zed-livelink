@@ -31,15 +31,12 @@
 
 #include "ZEDCamera.h"
 #include "ZEDStructs.h"
-#include "Utils.h"
+#include "Utils/Util.h"
 
 IMPLEMENT_APPLICATION(ZEDLiveLinkPlugin, "ZEDLiveLink");
 
 using namespace sl;
 using namespace std;
-
-#define ENABLE_OBJECT_DETECTION 1
-
 
 static TSharedPtr<ILiveLinkProvider> LiveLinkProvider;
 
@@ -68,12 +65,13 @@ void UpdateCameraStaticData(FName SubjectName);
 void UpdateCameraFrameData(FName SubjectName, ZEDCamera& camera);
 void UpdateSkeletonStaticData(FName SubjectName);
 void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton);
-ERROR_CODE PopulateSkeletonsData(ZEDCamera* cam);
-ERROR_CODE InitCamera(int argc, char **argv);
+ERROR_CODE PopulateSkeletonsData(ZEDCamera* cam, ZEDConfig config);
+ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig config);
 FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose);
 StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectData, double timestamp);
 
 bool IsConnected = false;
+bool enableObjectDetection = false;
 
 // Streamed Data
 StreamedCameraData StreamedCamera;
@@ -85,16 +83,33 @@ TMap<int, StreamedSkeletonData> StreamedSkeletons;
 
 int main(int argc, char **argv)
 {
+	ZEDConfig zed_config;
+	std::string zed_config_file("ZEDLiveLinkConfig.json"); // Default name and location.
+	if (argc == 2)
+	{
+		zed_config_file = argv[1];
+		std::cout << "Loading " << zed_config_file << " config file.";
+	}
+	else if (argc > 2)
+	{
+		std::cout << "Unexecpected arguments, exiting..." << std::endl;
+		return EXIT_FAILURE;
+	}
+	else {
+		std::cout << "Trying to load default config file 'ZEDLiveLinkConfig.json' " << std::endl;
+	}
+	readZEDConfig(zed_config_file, zed_config);
 	std::cout << "Starting ZEDLiveLink tool" << endl;
 	cout << "Opening camera..." << endl;
-	LibInit();
-	LiveLinkProvider = ILiveLinkProvider::CreateLiveLinkProvider(TEXT("ZED"));
 	//// Create camera
-	ERROR_CODE e = InitCamera(argc, argv);
+	ERROR_CODE e = InitCamera(argc, argv, zed_config);
 	if (e != ERROR_CODE::SUCCESS) {
 		cout << "Error " << e << ", exit program.\n";
 		return EXIT_FAILURE;
 	}
+	LibInit();
+	LiveLinkProvider = ILiveLinkProvider::CreateLiveLinkProvider(TEXT("ZED") + StreamedCamera.SubjectName.ToString());
+
 	cout << "Waiting for connection..." << endl;
 	//// Update static camera data.
 	if (LiveLinkProvider.IsValid()) {
@@ -119,16 +134,16 @@ int main(int argc, char **argv)
 			if (err == sl::ERROR_CODE::SUCCESS) {
 				UpdateCameraFrameData(StreamedCamera.SubjectName, *StreamedCamera.Cam);
 
-#if ENABLE_OBJECT_DETECTION
-				e = PopulateSkeletonsData(StreamedCamera.Cam);
-				if (e != ERROR_CODE::SUCCESS) {
-					cout << "Error " << e << ", exit program.\n";
-					return EXIT_FAILURE;
+				if (enableObjectDetection) {
+					e = PopulateSkeletonsData(StreamedCamera.Cam, zed_config);
+					if (e != ERROR_CODE::SUCCESS) {
+						cout << "Error " << e << ", exit program.\n";
+						return EXIT_FAILURE;
+					}
+					for (auto& it : StreamedSkeletons) {
+						UpdateAnimationFrameData(it.Value);
+					}
 				}
-				for (auto& it : StreamedSkeletons) {
-					UpdateAnimationFrameData(it.Value);
-				}
-#endif
 			}
 			else if (err == sl::ERROR_CODE::END_OF_SVOFILE_REACHED) {
 				std::cout << "End of SVO reached " << std::endl;
@@ -145,9 +160,9 @@ int main(int argc, char **argv)
 	}
 	// Disable positional tracking and close the camera
 	StreamedCamera.Cam->DisableTracking();
-#if ENABLE_OBJECT_DETECTION
-	StreamedCamera.Cam->DisableObjectDetection();
-#endif
+	if (enableObjectDetection) {
+		StreamedCamera.Cam->DisableObjectDetection();
+	}
 	StreamedCamera.Cam->Close();
 
 	LiveLinkProvider.Reset();
@@ -176,11 +191,11 @@ FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose)
 	return UETransform;
 }
 
-ERROR_CODE InitCamera(int argc, char **argv)
+ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig config)
 {
-	string pathSVO = "";
-	string ip = "";
-	int port = 30000;
+	string pathSVO = config.svo_path;
+	string ip = config.ip;
+	int port = config.port;
 	ZEDCamera* zed = new ZEDCamera();
 	if (!zed->CreateCamera(0, true))
 	{
@@ -188,13 +203,14 @@ ERROR_CODE InitCamera(int argc, char **argv)
 		return sl::ERROR_CODE::FAILURE;
 	}
 	SL_InitParameters init_params;
-	init_params.resolution = sl::RESOLUTION::HD1080;
-	init_params.camera_fps = 30;
+	init_params.resolution = config.resolution;
+	init_params.camera_fps = config.fps;
 	init_params.coordinate_system = sl::COORDINATE_SYSTEM::LEFT_HANDED_Z_UP;
 	init_params.coordinate_unit = sl::UNIT::CENTIMETER;
-	init_params.depth_mode = DEPTH_MODE::ULTRA;
+	init_params.depth_mode = config.depth_mode;
 	init_params.sdk_verbose = 1;
-	parseArgs(argc, argv, init_params, pathSVO, ip, port);
+	init_params.input_type = config.input_type;
+	//parseArgs(argc, argv, init_params, pathSVO, ip, port);
 	ERROR_CODE err = zed->Open(init_params, pathSVO.c_str(), ip.c_str(), port);
 
 	if (err != ERROR_CODE::SUCCESS)
@@ -207,8 +223,8 @@ ERROR_CODE InitCamera(int argc, char **argv)
 
 	SL_PositionalTrackingParameters tracking_param;
 	tracking_param.set_floor_as_origin = true;
-	tracking_param.enable_pose_smoothing = true;
-
+	tracking_param.enable_pose_smoothing = config.enable_pose_smoothing;
+	tracking_param.enable_area_memory = config.enable_area_memory;
 	err = zed->EnableTracking(tracking_param);
 	if (err != ERROR_CODE::SUCCESS)
 	{
@@ -216,20 +232,21 @@ ERROR_CODE InitCamera(int argc, char **argv)
 		return err;
 	}
 
-#if ENABLE_OBJECT_DETECTION
-	SL_ObjectDetectionParameters obj_det_params;
-	obj_det_params.enable_body_fitting = true;
-	obj_det_params.enable_tracking = true;
-	obj_det_params.model = sl::DETECTION_MODEL::HUMAN_BODY_ACCURATE;
-	obj_det_params.body_format = sl::BODY_FORMAT::POSE_34;
-	obj_det_params.max_range = 5 * 100;
-	err = zed->EnableObjectDetection(obj_det_params);
-	if (err != ERROR_CODE::SUCCESS)
-	{
-		std::cout << "ERROR : Enable OD" << std::endl;
-		return err;
+	enableObjectDetection = config.enable_object_detection_module;
+	if (enableObjectDetection) {
+		SL_ObjectDetectionParameters obj_det_params;
+		obj_det_params.enable_body_fitting = true;
+		obj_det_params.enable_tracking = true;
+		obj_det_params.model = config.detection_model;
+		obj_det_params.body_format = sl::BODY_FORMAT::POSE_34;
+		obj_det_params.max_range = config.max_range;
+		err = zed->EnableObjectDetection(obj_det_params);
+		if (err != ERROR_CODE::SUCCESS)
+		{
+			std::cout << "ERROR : Enable OD" << std::endl;
+			return err;
+		}
 	}
-#endif
 	return err;
 }
 
@@ -249,7 +266,7 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectD
 	rigBoneTarget["PELVIS"].SetLocation(FVector(bodyPosition.x, bodyPosition.y, bodyPosition.z));
 	rigBoneTarget["PELVIS"].SetRotation(FQuat(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w));
 
-	for (int i = 1; i < targetBone.Num(); i++)
+	for (int i = 1; i < targetBone.Num() / 2; i++)
 	{
 		sl::float3 localTranslation = objectData.local_position_per_joint[i];
 		sl::float4 localRotation = objectData.local_orientation_per_joint[i];
@@ -259,19 +276,28 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectD
 	}
 
 	TArray<FTransform> transforms;
-	for (int i = 0; i < targetBone.Num(); i++)
+	for (int i = 0; i < targetBone.Num() / 2; i++)
 	{
 		transforms.Push(rigBoneTarget[targetBone[i]]);
+	}
+
+	// Add keypoints confidence at the end of the Array of transforms.
+	for (int i = 0; i < targetBone.Num() / 2; i++)
+	{
+		FTransform kp_conf = FTransform::Identity;
+		kp_conf.SetLocation(FVector(objectData.keypoint_confidence[i], objectData.keypoint_confidence[i], objectData.keypoint_confidence[i]));
+		transforms.Push(kp_conf);
 	}
 	SkeletonsData.Skeleton = transforms;
 	return SkeletonsData;
 }
 
-ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed)
+ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed, ZEDConfig config)
 {
 	ERROR_CODE e = ERROR_CODE::FAILURE;
 	SL_ObjectDetectionRuntimeParameters objectTracker_parameters_rt;
-	objectTracker_parameters_rt.object_confidence_threshold[(int)sl::OBJECT_CLASS::PERSON] = 70;
+	objectTracker_parameters_rt.object_confidence_threshold[(int)sl::OBJECT_CLASS::PERSON] = config.confidence;
+	objectTracker_parameters_rt.minimum_keypoints_threshold = config.minimum_keypoints_threshold;
 	SL_Objects bodies;
 	e = zed->RetrieveObjects(objectTracker_parameters_rt, bodies);
 	if (e != ERROR_CODE::SUCCESS)
@@ -333,7 +359,7 @@ void UpdateCameraFrameData(FName SubjectName, ZEDCamera& zed)
 	zed.GetPosition(pose, sl::REFERENCE_FRAME::WORLD);
 	FTransform Pose = BuildUETransformFromZEDTransform(pose);
 	CameraData.AspectRatio = 16. / 9;
-	//CameraData.FieldOfView = zed.getCameraInformation().camera_configuration.calibration_parameters.left_cam.h_fov;
+	CameraData.FieldOfView = zed.GetCalibrationParameters(false)->left_cam.h_fov;
 	CameraData.ProjectionMode = ELiveLinkCameraProjectionMode::Perspective;
 	CameraData.Transform = Pose;
 	double StreamTime = FPlatformTime::Seconds();
@@ -346,6 +372,7 @@ void UpdateSkeletonStaticData(FName SubjectName)
 {
 	FLiveLinkStaticDataStruct StaticData(FLiveLinkSkeletonStaticData::StaticStruct());
 	FLiveLinkSkeletonStaticData& AnimationData = *StaticData.Cast<FLiveLinkSkeletonStaticData>();
+
 	for (int i = 0; i < targetBone.Num(); i++)
 	{
 		AnimationData.BoneNames.Add(FName(targetBone[i]));

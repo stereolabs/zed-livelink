@@ -73,13 +73,16 @@ $ ./ZEDLiveLink 10028418
 
 ### Using the Live Link app
 
-The camera input (ip, svo or serial number) can be provided directly as an argument.
+The ZED Live link sample now requires a Config file (Json format) to run. This file contains all the parameters from the ZED SDK that can be modified in this sample.
+For more informations about these parameters, the documentation is available here : https://www.stereolabs.com/docs/api/
 
-To send data from a specific camera, add its serial number as arguments.
-For example, to connect the camera whose serial number is 10028418, run :
+By default, the sample will try to open a json called "ZEDLiveLinkConfig.json" located next to this executable.
+
+To change the name or location of the config file, add it as argument.
+For example, to use a file called "ConfigFile.json", run :
 
 ```bash
-$ ./ZEDLiveLink 10028418
+$ ./ZEDLiveLink ConfigFile.json
 ```
 
 3. You can see the connection status in the terminal.

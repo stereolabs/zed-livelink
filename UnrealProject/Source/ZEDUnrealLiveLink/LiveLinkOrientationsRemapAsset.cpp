@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "LiveLinkOrientationsRemapAsset.h"
 
 #include "Roles/LiveLinkAnimationTypes.h"
@@ -38,7 +35,6 @@ FCompactPoseBoneIndex ULiveLinkOrientationsRemapAsset::getCPIndex(int32 idx, FCo
         return CPIndex;
     }
     return (FCompactPoseBoneIndex) INDEX_NONE;
-
 }
 
 void ULiveLinkOrientationsRemapAsset::putInRefPose(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames){
@@ -81,7 +77,8 @@ void ULiveLinkOrientationsRemapAsset::propagateRestPoseRotations(int32 parentIdx
 void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime,
     const FLiveLinkSkeletonStaticData* InSkeletonData,
     const FLiveLinkAnimationFrameData* InFrameData,
-    FCompactPose& OutPose)
+    FCompactPose& OutPose,
+    USkeletalMeshComponent* SkeletalMesh)
 {
     const TArray<FName>& SourceBoneNames = InSkeletonData->BoneNames;
     const TArray<int32>& SourceBoneParents = InSkeletonData->BoneParents;
@@ -106,6 +103,15 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime
         }
     }
 
+
+    if (InFrameData->Transforms[34 + 20].GetLocation().X != 0 && InFrameData->Transforms[34 + 24].GetLocation().X != 0) { //if both foot are visible/detected
+        if (SkeletalMesh) {
+            float LeftFootHeight = SkeletalMesh->GetBoneLocation(TransformedBoneNames[20]).Z;
+            float RightFootHeight = SkeletalMesh->GetBoneLocation(TransformedBoneNames[24]).Z;
+            FeetOffset = Alpha * fmin(LeftFootHeight, RightFootHeight) + (1 - Alpha) * FeetOffset;
+        }
+    }
+
     putInRefPose(OutPose, TransformedBoneNames);
     FCompactPoseBoneIndex CPIndexRoot = getCPIndex(0, OutPose, TransformedBoneNames);
 
@@ -116,37 +122,43 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime
     for (int32 i = 0; i < TransformedBoneNames.Num(); i++)
     {
         FName BoneName = TransformedBoneNames[i];
-        FTransform BoneTransform = InFrameData->Transforms[i];
-        FCompactPoseBoneIndex CPIndex = getCPIndex(i, OutPose, TransformedBoneNames);
-        if (CPIndex != INDEX_NONE)
-        {
-            FQuat ConvertedLiveLinkRotation;
+        
 
-            // Only use position + rotation data for root. For all other bones, set rotation only.
-            if (BoneName == *BoneNameMap.Find(GetTargetRootName()))
+        if (!BoneName.ToString().ToLower().Contains("conf")) { // ignore kp confidence stored as kp
+            FTransform BoneTransform = InFrameData->Transforms[i];
+            FCompactPoseBoneIndex CPIndex = getCPIndex(i, OutPose, TransformedBoneNames);
+            if (CPIndex != INDEX_NONE)
             {
-				
-                float rootTranslationFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData);
-                FVector translation = ConvertRootPosition(BoneTransform.GetTranslation());
-				
-				FCompactPoseBoneIndex hipIndex = getCPIndex(18, OutPose, TransformedBoneNames);
-				float offset = FMath::Abs( OutPose[hipIndex].GetLocation().Z);
+                FQuat Rotation;
+                FVector Translation;
 
-				translation.Z += offset;
-                translation.Z *= rootTranslationFactor;
-                OutPose[CPIndex].SetLocation(translation);
-                ConvertedLiveLinkRotation = ConvertRootRotation(BoneTransform.GetRotation());
+                // Only use position + rotation data for root. For all other bones, set rotation only.
+                if (BoneName == *BoneNameMap.Find(GetTargetRootName()))
+                {
+
+                    float rootTranslationFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData);
+                    FVector RootPosition = BoneTransform.GetTranslation();
+                    FCompactPoseBoneIndex leftUpLegIndex = getCPIndex(18, OutPose, TransformedBoneNames);
+                    float HipOffset = FMath::Abs(OutPose[leftUpLegIndex].GetTranslation().Z) * OutPose[CPIndexRoot].GetScale3D().Z;
+
+                    RootPosition.Z += HipOffset;
+                    RootPosition.Z -= FeetOffset;
+                    RootPosition.Z *= rootTranslationFactor;
+
+                    Translation = RootPosition;
+                    Rotation = BoneTransform.GetRotation();
+                }
+                else
+                {
+                    Rotation = BoneTransform.GetRotation();
+                    Translation = OutPose[CPIndex].GetTranslation();
+                }
+
+                // Retrieves the default reference pose for the skeleton. Live Link data contains relative transforms from the default pose.
+                FQuat FinalRotation = Rotation * OutPose[CPIndex].GetRotation();
+                OutPose[CPIndex].SetRotation(FinalRotation);
+                OutPose[CPIndex].SetTranslation(Translation);
             }
-            else
-            {
-                ConvertedLiveLinkRotation = ConvertBoneRotation(BoneTransform.GetRotation());
-                FVector avatarTranslation = OutPose[CPIndex].GetTranslation();
-
-            }
-            // Retrieves the default reference pose for the skeleton. Live Link data contains relative transforms from the default pose.
-            auto RefBoneTransform = OutPose.GetRefPose(CPIndex);
-
-            OutPose[CPIndex].SetRotation(ConvertedLiveLinkRotation *  OutPose[CPIndex].GetRotation());
         }
     }
     if (CPIndexRoot != INDEX_NONE)
