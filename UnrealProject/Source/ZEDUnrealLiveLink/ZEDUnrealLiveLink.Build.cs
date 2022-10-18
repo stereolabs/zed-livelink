@@ -7,19 +7,29 @@ public class ZEDUnrealLiveLink : ModuleRules
 	public ZEDUnrealLiveLink(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+
+		PublicDependencyModuleNames.AddRange(new string[] {
+				"Core",
+				"CoreUObject",
+				"Engine",
+				"LiveLink",
+				"LiveLinkInterface"
+				});
+
+		PrivateDependencyModuleNames.AddRange(new string[] {
+			 "AnimGraphRuntime",
+			 });
 
 #if UE_5_0_OR_LATER
 
 		PublicDependencyModuleNames.Add("LiveLinkAnimationCore");
 #endif
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] {});
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

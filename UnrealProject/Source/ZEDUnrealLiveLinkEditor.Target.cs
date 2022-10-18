@@ -11,5 +11,8 @@ public class ZEDUnrealLiveLinkEditorTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
 		ExtraModuleNames.AddRange( new string[] { "ZEDUnrealLiveLink" } );
+
+		ExtraModuleNames.AddRange(new string[] { "ZEDUnrealLiveLinkEditor" });
+
 	}
 }

@@ -1,0 +1,23 @@
+{
+     "InitParameters":
+     {
+       "input": "USB",
+       "input_path": "",
+       "resolution": "HD1080",
+       "fps": 30,
+       "depth_mode": "ULTRA"
+     },
+     "PositionalTrackingParameters":
+     {
+       "enable_pose_smoothing" : true,
+       "enable_area_memory": false
+     },
+     "ObjectDetectionParameters":
+     {
+       "enable_module": true,
+       "detection_model": "HUMAN_BODY_ACCURATE",
+       "confidence": 60,
+       "max_range": 700,
+       "minimum_keypoints_threshold" : 5
+     }
+}

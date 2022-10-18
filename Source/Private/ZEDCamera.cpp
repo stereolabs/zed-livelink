@@ -13,7 +13,7 @@ ZEDCamera::ZEDCamera() {
 #if PLATFORM_LINUX
 	name_dll = "libsl_zed_c.so";
 #elif PLATFORM_WINDOWS
-	name_dll = "ZEDLiveLink/sl_zed_c.dll";
+	name_dll = "sl_zed_c.dll";
 #endif 
 	LoadDll(name_dll);
 }
@@ -369,6 +369,4 @@ void ZEDCamera::setSVOPosition(int frame_number) {
 	}
 	m_funcSetSVOPosition(camera_id, frame_number);
 }
-
-
 #endif

@@ -60,7 +60,7 @@ struct SL_InitParameters
 	bool enable_right_side_measure;
 	bool svo_real_time_mode;
 	sl::DEPTH_MODE depth_mode;
-	bool depth_stabilization;
+	int depth_stabilization;
 	float depth_minimum_distance;
 	float depth_maximum_distance;
 
@@ -85,7 +85,7 @@ struct SL_InitParameters
 		enable_right_side_measure = false;
 		svo_real_time_mode = true;
 		depth_mode = sl::DEPTH_MODE::PERFORMANCE;
-		depth_stabilization = true;
+		depth_stabilization = 1;
 		depth_minimum_distance = -1;
 		depth_maximum_distance = -1;
 		coordinate_unit = sl::UNIT::CENTIMETER;
@@ -181,6 +181,7 @@ struct SL_ObjectDetectionParameters
 	float max_range;
 	SL_BatchParameters batch_parameters;
 	sl::OBJECT_FILTERING_MODE filtering_mode;
+	float predicition_timeout_s;
 
 	SL_ObjectDetectionParameters() {
 		image_sync = false;
@@ -191,6 +192,7 @@ struct SL_ObjectDetectionParameters
 		max_range = -1;
 		body_format = sl::BODY_FORMAT::POSE_34;
 		filtering_mode = sl::OBJECT_FILTERING_MODE::NMS3D;
+		predicition_timeout_s = 0.2f;
 	}
 };
 
@@ -202,7 +204,7 @@ struct SL_ObjectDetectionRuntimeParameters
 	float detection_confidence_threshold;
 	int object_class_filter[(int)sl::OBJECT_CLASS::LAST];
 	int object_confidence_threshold[(int)sl::OBJECT_CLASS::LAST];
-
+	int minimum_keypoints_threshold = 5;
 };
 
 struct SL_Pose {
@@ -230,6 +232,8 @@ struct SL_PositionalTrackingParameters
 	bool set_floor_as_origin = false;
 	bool set_as_static = false;
 	bool enable_imu_fusion = true;
+	float depth_min_range = -1.0f;
+	bool set_gravity_as_origin = true;
 	sl::String area_file_path = "";
 };
 
@@ -256,6 +260,7 @@ struct SL_ObjectData
 	sl::float3 position;
 	sl::float3 head_position;
 	sl::float3 velocity;
+	sl::float3 dimensions;
 	sl::float3 bounding_box[8];
 	sl::float3 head_bounding_box[8];
 	sl::float2 keypoint_2d[34];

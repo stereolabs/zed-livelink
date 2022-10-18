@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{7AF02B0E-4D9B-E127-1AAA-30BDC2F26FDC}",
+	"EngineAssociation": "{E6850EEE-4589-5E39-07BC-04A938E0031F}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -10,6 +10,15 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
+				"LiveLink"
+			]
+		},
+		{
+			"Name": "ZEDUnrealLiveLinkEditor",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"AnimGraph",
 				"LiveLink"
 			]
 		}

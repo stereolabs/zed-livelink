@@ -37,7 +37,7 @@ public class ZEDLiveLink : ModuleRules
 			"LiveLinkMessageBusFramework",
 		});
 
-        LoadZEDSDK(Target, ZEDSDKPath);
+		LoadZEDSDK(Target, ZEDSDKPath);
         LoadCUDA(Target, CudaSDKPath);
         LoadWrapper(Target, WrapperPath);
     }
@@ -57,11 +57,8 @@ public class ZEDLiveLink : ModuleRules
             string[] LibrariesNames = Directory.GetFiles(Path.Combine(DirPath, "lib"));
 
             PrivateIncludePaths.Add(Path.Combine(DirPath, "include"));
+			PublicAdditionalLibraries.Add(Path.Combine(DirPath, "lib", "sl_zed64.lib"));
 
-            foreach (string Library in LibrariesNames)
-            {
-                PublicAdditionalLibraries.Add(Library);
-            }
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
