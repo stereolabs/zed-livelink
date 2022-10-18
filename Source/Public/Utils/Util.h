@@ -66,6 +66,9 @@ sl::DEPTH_MODE toDepthMode(std::string value)
 	else if (value == "NONE") {
 		depth_mode = sl::DEPTH_MODE::NONE;
 	}
+	else {
+		depth_mode = sl::DEPTH_MODE::NONE;
+	}
 
 	return depth_mode;
 }
@@ -110,7 +113,7 @@ struct ZEDConfig {
 		std::cout << "Loading config file ... " << std::endl;
 		resolution = toResolution(injson["InitParameters"]["resolution"]);
 		std::cout << "resolution : " << resolution << std::endl;
-		 
+
 		fps = injson["InitParameters"]["fps"];
 		std::cout << "fps : " << fps << std::endl;
 

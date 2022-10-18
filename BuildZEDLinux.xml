@@ -1,6 +1,7 @@
 <?xml version='1.0' ?>
 <BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../../../Engine/Build/Graph/Schema.xsd" >
   <Property Name="LocalBinaryDir" Value="$(RootDir)/Engine/Binaries/Linux"/>
+  <Property Name="LocalSourceDir" Value="$(RootDir)/Engine/Source/Programs/zed-livelink-plugin"/>
   <Agent Name="ZEDLiveLink" Type="Linux">
     <Node Name="Compile UnrealHeaderTool Linux">
       <Compile Target="UnrealHeaderTool" Platform="Linux" Configuration="Test" Arguments="-precompile -nodebuginfo"/>
@@ -12,6 +13,8 @@
      <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink" />
      <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test.debug" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink.debug" />
      <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test.sym" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink.sym" />
+     <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test.sym" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink.sym"/>
+     <Copy From="$(LocalSourceDir)/ZEDLiveLinkConfig.json" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLinkConfig.json"/>
     </Node>
   </Agent>
 </BuildGraph>
