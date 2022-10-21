@@ -3,7 +3,7 @@ ZED LiveLink Plugin for Unreal
 
 ## ZED Live Link tool
 
-This tool is using the Live Link plugin to connect Unreal engine 4 to the ZED SDK, which enables you to send skeleton tracking data to UE4. This way, you can control a Skeletal Mesh in real-time using the Skeleton tracking module of the ZED SDK.
+This tool is using the Live Link plugin to connect Unreal engine 5 to the ZED SDK, which enables you to send skeleton tracking data to UE5. This way, you can control a Skeletal Mesh in real-time using the Skeleton tracking module of the ZED SDK.
 
 It can be send through local network on Windows and Linux computers.
 
@@ -25,7 +25,7 @@ To gain access to the UE engine code, please follow the steps below:
 2. Create an account at Epic Games: [Sign up](https://accounts.epicgames.com/login)
 3. Login to your Epic Games account and associate your GitHub account in the settings by entering your username into the GitHub account field.
 5. Login to your Github account and accept the Epic team invitation* (Can take a few seconds to appear).
-4. Download or clone the [UE4 engine](https://github.com/EpicGames/UnrealEngine/tree/release) code.
+4. Download or clone the [UE5 engine](https://github.com/EpicGames/UnrealEngine/tree/release) code.
 
 > The link above will result in a 404 error if your GitHub account is not linked to an Epic Game one. Make sure to follow all the instructions above.
 
@@ -39,7 +39,7 @@ To gain access to the UE engine code, please follow the steps below:
 1. Inside the root directory, run **Setup.bat**. This will check all the project dependencies and update them as needed.
 2. Clone this repository inside of <Engine Install Folder>\Engine\Source\Programs.
 3. Run **GenerateProjectFiles.bat** to create project files for the engine.
-4. Load the project into Visual Studio by double-clicking on the UE4.sln file, then right click on the ZEDLiveLink target and select **Build**.
+4. Load the project into Visual Studio by double-clicking on the UE5.sln file, then right click on the ZEDLiveLink target and select **Build**.
 5. The binaries will be placed in <Engine Install Folder>\Engine\Binaries\Win64\ZEDLiveLink\.
 
 ### Using the Live Link app
