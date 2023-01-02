@@ -1,8 +1,8 @@
 {
      "InitParameters":
      {
-       "input": "SVO",
-       "input_path": "D:/SVO/test_floor_plane.svo",
+       "input": "USB",
+       "input_path": "",
        "resolution": "HD1080",
        "fps": 30,
        "depth_mode": "ULTRA"
