@@ -270,8 +270,9 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData objectD
 	{
 		sl::float3 localTranslation = objectData.local_position_per_joint[i];
 		sl::float4 localRotation = objectData.local_orientation_per_joint[i];
+		sl::float3 worldTranslation = objectData.keypoint[i];
 
-		rigBoneTarget[targetBone[i]].SetLocation(FVector(localTranslation.x, localTranslation.y, localTranslation.z));
+		rigBoneTarget[targetBone[i]].SetLocation(FVector(worldTranslation.x, worldTranslation.y, worldTranslation.z));
 		rigBoneTarget[targetBone[i]].SetRotation(FQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w));
 	}
 
