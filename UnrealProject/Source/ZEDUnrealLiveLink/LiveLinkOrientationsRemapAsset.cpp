@@ -153,6 +153,33 @@ static FName GetParentBoneName(FName BoneName)
 	return ParentBoneName;
 }
 
+float FindFeetOffset(std::deque<float> Offsets, bool isAboveTheGround)
+{
+	float min = std::numeric_limits<float>::max();
+	float max = -std::numeric_limits<float>::max();
+
+	for (int i = 0; i < Offsets.size(); i++)
+	{
+		float value = Offsets[i];
+		if (isAboveTheGround && value >= 0)
+		{
+			if (value < min)
+			{
+				min = value;
+			}
+		}
+		else if (!isAboveTheGround && value < 0)
+		{
+			if (value > max) // negative values
+			{
+				max = value;
+			}
+		}
+	}
+
+	return isAboveTheGround ? min : max;
+}
+
 void ULiveLinkOrientationsRemapAsset::SetHeightOffset(float Offset)
 {
 	HeightOffset = Offset;
@@ -277,50 +304,58 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime
 	if (bStickAvatarOnFloor && InFrameData->Transforms[34 + 20].GetLocation().X >90 && InFrameData->Transforms[34 + 24].GetLocation().X > 90) { //if both foot are visible/detected
 		if (SkeletalMesh) {
 
-				FVector LeftFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[21]) + FVector(0, 0, FeetOffset);
-				FVector RightFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[25]) + FVector(0,0,FeetOffset);
+				FVector LeftFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[21]);
+				FVector RightFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[25]);
 
 				FHitResult HitLeftFoot;
-				bool RaycastLeftFoot = GetWorld()->LineTraceSingleByObjectType(OUT HitLeftFoot, LeftFootPosition + FVector(0, 0, 500), LeftFootPosition - FVector(0, 0, 500),
+				bool RaycastLeftFoot = GetWorld()->LineTraceSingleByObjectType(OUT HitLeftFoot, LeftFootPosition + FVector(0, 0, 200), LeftFootPosition - FVector(0, 0, 200),
 					FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldStatic));
 
 				FHitResult HitRightFoot;
-				bool RaycastRightFoot = GetWorld()->LineTraceSingleByObjectType(OUT HitRightFoot, RightFootPosition + FVector(0, 0, 500), RightFootPosition - FVector(0, 0, 500),
+				bool RaycastRightFoot = GetWorld()->LineTraceSingleByObjectType(OUT HitRightFoot, RightFootPosition + FVector(0, 0, 200), RightFootPosition - FVector(0, 0, 200),
 					FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldStatic));
 
 				float LeftFootFloorDistance = 0;
 				float RightFootFloorDistance = 0;
 
+				// Compute the distance between one foot and the ground (the first static object found by the ray cast).
 				if (RaycastLeftFoot)
 				{
-					LeftFootFloorDistance = (LeftFootPosition - HitLeftFoot.ImpactPoint).Z;
+					LeftFootFloorDistance = (LeftFootPosition + FVector(0, 0, FeetOffset) - HitLeftFoot.ImpactPoint).Z;
 				}
 
 				if (RaycastRightFoot)
 				{
-					RightFootFloorDistance = (RightFootPosition - HitRightFoot.ImpactPoint).Z;
+					RightFootFloorDistance = (RightFootPosition + FVector(0, 0, FeetOffset) - HitRightFoot.ImpactPoint).Z;
 				}
 
 				float MinFootFloorDistance = 0;
 
-				if (RightFootFloorDistance < 0 || LeftFootFloorDistance < 0) {
+				// If both feet are under the ground, use the max value instead of the min value.
+				if (RightFootFloorDistance < 0 && LeftFootFloorDistance < 0) {
 
-					MinFootFloorDistance = -1 * fmax(abs(RightFootFloorDistance), abs(LeftFootFloorDistance));
+					MinFootFloorDistance = -1.0f * fmax(abs(RightFootFloorDistance), abs(LeftFootFloorDistance));
+					FeetOffset = FeetOffsetAlpha * MinFootFloorDistance + (1 - FeetOffsetAlpha) * FeetOffset;
+				}
+				else if (RightFootFloorDistance > 0 && LeftFootFloorDistance > 0)
+				{
+					MinFootFloorDistance = fmin(abs(RightFootFloorDistance), abs(LeftFootFloorDistance));
+
+					// The feet offset is added in the buffer of size "FeetOffsetBufferSize". If the buffer is already full, remove the oldest value (the first of the deque)
+					if (FeetOffsetBuffer.size() == FeetOffsetBufferSize)
+					{
+						FeetOffsetBuffer.pop_front();
+					}
+					FeetOffsetBuffer.push_back(MinFootFloorDistance);
+
+					// The feet offset is the min element of this deque (of size FeetOffsetBufferSize).
+					FeetOffset = FindFeetOffset(FeetOffsetBuffer, true);
 				}
 				else
 				{
-					MinFootFloorDistance = fmin(abs(RightFootFloorDistance), abs(LeftFootFloorDistance));
+					MinFootFloorDistance = fmin(RightFootFloorDistance, LeftFootFloorDistance);
+					FeetOffset = FeetOffsetAlpha * MinFootFloorDistance + (1 - FeetOffsetAlpha) * FeetOffset;
 				}
-
-				if (FeetOffsetBuffer.size() == FeetOffsetBufferSize)
-				{
-					FeetOffsetBuffer.pop_front();
-				}
-				FeetOffsetBuffer.push_back(MinFootFloorDistance);
-
-				std::deque<float>::iterator it = std::min_element(FeetOffsetBuffer.begin(), FeetOffsetBuffer.end());
-
-				FeetOffset =  *it;
 		}
 	}
 	else

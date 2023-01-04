@@ -48,8 +48,9 @@ protected:
         // factor used to computer foot offset over time.
         float BoneScaleAlpha = 0.2f;
 		
-		int FeetOffsetBufferSize = 200;
+		int FeetOffsetBufferSize = 120;
 		std::deque<float> FeetOffsetBuffer;
+		float FeetOffsetAlpha = 0.2f;
 
 		float FeetOffset = 0;
 		float HeightOffset = 0;
