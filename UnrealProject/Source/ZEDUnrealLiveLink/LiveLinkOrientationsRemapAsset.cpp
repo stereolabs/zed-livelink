@@ -153,33 +153,6 @@ static FName GetParentBoneName(FName BoneName)
 	return ParentBoneName;
 }
 
-float FindFeetOffset(std::deque<float> Offsets, bool isAboveTheGround)
-{
-	float min = std::numeric_limits<float>::max();
-	float max = -std::numeric_limits<float>::max();
-
-	for (int i = 0; i < Offsets.size(); i++)
-	{
-		float value = Offsets[i];
-		if (isAboveTheGround && value >= 0)
-		{
-			if (value < min)
-			{
-				min = value;
-			}
-		}
-		else if (!isAboveTheGround && value < 0)
-		{
-			if (value > max) // negative values
-			{
-				max = value;
-			}
-		}
-	}
-
-	return isAboveTheGround ? min : max;
-}
-
 void ULiveLinkOrientationsRemapAsset::SetHeightOffset(float Offset)
 {
 	HeightOffset = Offset;
@@ -349,7 +322,7 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime
 					FeetOffsetBuffer.push_back(MinFootFloorDistance);
 
 					// The feet offset is the min element of this deque (of size FeetOffsetBufferSize).
-					FeetOffset = FindFeetOffset(FeetOffsetBuffer, true);
+					FeetOffset = *std::min_element(FeetOffsetBuffer.begin(), FeetOffsetBuffer.end());
 				}
 				else
 				{
