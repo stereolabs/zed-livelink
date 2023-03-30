@@ -1,124 +1,36 @@
-# Stereolabs ZED - Live Link Plugin
-ZED LiveLink Plugin for Unreal
+# Stereolabs ZED - Live Link Sample
+ZED LiveLink Sample for Unreal Engine 5
 
-## ZED Live Link tool
+# zed-livelink-mono
 
-This tool is using the Live Link plugin to connect Unreal engine 5 to the ZED SDK, which enables you to send skeleton tracking data to UE5. This way, you can control a Skeletal Mesh in real-time using the Skeleton tracking module of the ZED SDK.
-
-It can be send through local network on Windows and Linux computers.
-
-The object detection module can be disabled in order to send only camera tracking data.
-
-## Getting started
-
- - First, download the latest version of the ZED SDK on [stereolabs.com](https://www.stereolabs.com/developers/)
-- For more information, read the ZED [Documentation](https://www.stereolabs.com/docs) and [API documentation](https://www.stereolabs.com/docs/api/)
+This sample can be used to send either camera tracking data or skeleton data from one camera into Unreal Engine 5 using Live link.
+All the information is available [here](zed-livelink-mono/README.md)
 
 
-To compile the tool from source, you will require a source build of Unreal Engine.
+# zed-livelink-fusion
 
-## Download the Engine
-
-To gain access to the UE engine code, please follow the steps below:
-
-1. Create an account at GitHub: [Sign up](https://github.com/join)
-2. Create an account at Epic Games: [Sign up](https://accounts.epicgames.com/login)
-3. Login to your Epic Games account and associate your GitHub account in the settings by entering your username into the GitHub account field.
-5. Login to your Github account and accept the Epic team invitation* (Can take a few seconds to appear).
-4. Download or clone the [UE5 engine](https://github.com/EpicGames/UnrealEngine/tree/release) code.
-
-> The link above will result in a 404 error if your GitHub account is not linked to an Epic Game one. Make sure to follow all the instructions above.
-
-> *If the invitation isn't sent, clicking on the following link seems to trigger it: [Unreal Group](https://github.com/orgs/EpicGames).
+This sample can be used to send skeleton data from multiples camera using the Fusion API (introduced in the v4.0 of the ZED SDK) into Unreal Engine 5 using Live link.
+All the information is available [here](zed-livelink-fusion/README.md)
 
 
-## Build for Windows
+# Unreal Project
 
-### Compile from Source
+This unreal project shows you how to use the body tracking data sent through live link to animate a 3D model.
 
-1. Inside the root directory, run **Setup.bat**. This will check all the project dependencies and update them as needed.
-2. Clone this repository inside of <Engine Install Folder>\Engine\Source\Programs.
-3. Run **GenerateProjectFiles.bat** to create project files for the engine.
-4. Load the project into Visual Studio by double-clicking on the UE5.sln file, then right click on the ZEDLiveLink target and select **Build**.
-5. The binaries will be placed in <Engine Install Folder>\Engine\Binaries\Win64\ZEDLiveLink\.
-
-### Using the Live Link app
-
-The camera input (ip, svo or serial number) can be provided directly as an argument.
-
-To send data from a specific camera, add its serial number as arguments.
-For example, to connect the camera whose serial number is 10028418, run :
-
-```bash
-$ ./ZEDLiveLink 10028418
-```
-
-3. This will open a console window and show the connection status.
-
-## Build for Linux
-
-### Compile from Source
-
-1. Go into the folder you just downloaded/cloned and run **Setup.sh** from the terminal. This will check all the project dependencies and update them as needed.
-2. Clone this repository inside of <Engine Install Folder>/Engine/Source/Programs.
-3. In the Engine root directory, run **GenerateProjectFiles.sh**.
-4. Run **make** to build the Engine.
-5. Go to UnrealEngine/Engine/Build/BatchFiles and open a terminal.
-6. Build the plugin with the command :
- ```bash
- $ ./RunUAT.sh BuildGraph -Script=Engine/Source/Programs/zed-livelink-plugin/BuildZEDLinux.xml -Target="Stage ZEDLiveLink Linux"
- ```
-7. The binaries will be placed in <Engine Install Folder>/Engine/Binaries/Linux/ZEDLiveLink/.
+You can find more information on the Stereolabs [documentation](https://www.stereolabs.com/docs/livelink/)
 
 
-### Using the Live Link app
+## Connect to a livelink Source
 
-The ZED Live link sample now requires a Config file (Json format) to run. This file contains all the parameters from the ZED SDK that can be modified in this sample.
-For more informations about these parameters, the documentation is available here : https://www.stereolabs.com/docs/api/
-
-By default, the sample will try to open a json called "ZEDLiveLinkConfig.json" located next to this executable.
-
-To change the name or location of the config file, add it as argument.
-For example, to use a file called "ConfigFile.json", run :
-
-```bash
-$ ./ZEDLiveLink ConfigFile.json
-```
-
-3. You can see the connection status in the terminal.
-
-- On Windows :
-
-![](./doc_images/capture_zed_connected.jpg)
-
-- On Linux :
-
-![](./doc_images/zed_capture_installed_linux.jpg)
+In the "LivelinkMap" level, it no longer automatically connects to a live link at Start. Now, you need to do it manually by either selecting a Source in the Live link window or Pressing 'S' in the scene which will open a basic UI with all the sources available. You only need to click on the source to connect to. With this method, connecting to a source will automatically disconnect you from all other sources, meaning you can connect to only one source at a time.
 
 
-### Setting up a Unreal Engine Project
+## Select the remap asset
 
+The ZED SDK now has multiple skeleton formats (Body 34, 38, and 70) available for animating a 3D model.
+You need to make sure the correct remap asset is selected in the Anim Blueprint of Actor you are using in your level. Indeed, each body format has its own remap asset (as the name and numbers of joint is different).
+The remap asset **must** be set in the **Anim blueprint**, in the **ZED Livelink** pose component.
 
+For example, if you are using the Body format *Body_38*, open the **ABP_ZED_Manny** anim blueprint, select the **ZED LivelinkPose** component and, in the Detail panel, set the **Remap Asset** field to **RemapAssetBody38**
 
-### Troubleshooting
-
-Your firewall might block the data stream. If you do not see the ZED Source in the Live Link window, try to disable it.
-
-If the ZED Source is not yet detected in UnrealEngine, enable **Enable by default** in **Edit** -> **Project Settings** -> **UDP Messaging** -> **Enable by default**
-
-![](./doc_images/EnableByDefault.jpg)
-
-
-#### On Linux
-
-If the plugin crashes at the start, try to run the ldd command onto the sl_zed_c.so library :
-
-```bash
-$ ldd libsl_zed_c.so
-```
-It will show all the dependencies required by the .so and allow you to install anything that might be missing (for example lib-usb).
-
-
-Note that the c wrapper used for the Live link plugin is also available here : https://github.com/stereolabs/zed-c-api.
-
-If you encounter issues running the live link plugin, do not hesitate to build the wrapper yourself and place it in the lib/win64 or /linux folder.
+![](UnrealProject/images/remap_asset_selection.PNG)

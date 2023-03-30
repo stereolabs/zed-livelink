@@ -9,6 +9,7 @@
 #include "Roles/LiveLinkAnimationRole.h"
 #include "Roles/LiveLinkAnimationTypes.h"
 
+
 FAnimNode_ZEDLiveLinkPose::FAnimNode_ZEDLiveLinkPose()
 	: RetargetAsset(ULiveLinkOrientationsRemapAsset::StaticClass())
 	, CurrentRetargetAsset(nullptr)
@@ -90,6 +91,9 @@ void FAnimNode_ZEDLiveLinkPose::Evaluate_AnyThread(FPoseContext& Output)
 				check(SkeletonData);
 				check(FrameData);
 
+				CurrentRetargetAsset->EnableStickAvatarOnFloor(bStickAvatarOnFloor);
+				CurrentRetargetAsset->EnableBoneScaling(bBoneScaling);
+				CurrentRetargetAsset->SetHeightOffset(HeightOffset);
 				CurrentRetargetAsset->BuildPoseFromAnimationData(CachedDeltaTime, SkeletonData, FrameData, Output.Pose, SkeletalMesh);
 				CurrentRetargetAsset->BuildPoseAndCurveFromBaseData(CachedDeltaTime, SkeletonData, FrameData, Output.Pose, Output.Curve);
 				CachedDeltaTime = 0.f; // Reset so that if we evaluate again we don't "create" time inside of the retargeter

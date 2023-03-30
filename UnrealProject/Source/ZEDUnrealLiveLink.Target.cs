@@ -10,6 +10,10 @@ public class ZEDUnrealLiveLinkTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
+		BuildEnvironment = TargetBuildEnvironment.Unique;
+
+		GlobalDefinitions.Add("ALLOW_UDP_MESSAGING_SHIPPING=1");
+
 		ExtraModuleNames.AddRange( new string[] { "ZEDUnrealLiveLink" } );
 		
 		if (bBuildEditor)

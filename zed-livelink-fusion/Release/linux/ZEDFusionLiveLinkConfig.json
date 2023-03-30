@@ -1,0 +1,30 @@
+{
+    "InitParameters":
+    {
+      "resolution": "HD1080",
+      "fps": 30,
+      "depth_mode": "ULTRA"
+    },
+    "BodyTrackingParameters":
+    {
+      "detection_model": "HUMAN_BODY_ACCURATE",
+      "body_format": "BODY_38",
+      "body_selection": "FULL",
+      "confidence": 40,
+      "max_range": -1,
+      "minimum_keypoints_threshold" : -1
+    },
+     "InitFusionParameters":
+     {
+       "json_config_filename": "",
+       "output_performance_metrics": true,
+       "verbose": false
+
+     },
+     "BodyTrackingFusionParameters":
+     {
+       "skeleton_minimm_allowed_keypoints": 8,
+       "skeleton_minimum_allowed_camera": -1,
+       "skeleton_smoothing": 0
+     }
+}
