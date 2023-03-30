@@ -4,10 +4,10 @@
 #include "LiveLinkRemapAsset.h"
 
 #include "Containers/CircularQueue.h"
-#include "LiveLinkOrientationsRemapAsset.generated.h"
-
 #include <deque>
 #include <algorithm>
+
+#include "LiveLinkOrientationsRemapAsset.generated.h"
 
 /**
  *
@@ -17,7 +17,6 @@ class ZEDUNREALLIVELINK_API ULiveLinkOrientationsRemapAsset : public ULiveLinkRe
 {
 	GENERATED_BODY()
 
-    float ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData);
     void propagateRestPoseRotations(int32 parentIdx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, TArray<int32> SourceBoneParents, FQuat restPoseRot, bool inverse);
     void putInRefPose(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames);
     FCompactPoseBoneIndex GetCPIndex(int32 idx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames);
@@ -36,6 +35,10 @@ protected:
         // The root in our case is the pelvis
         virtual FName GetTargetRootName() const { return "PELVIS"; }
 
+		int NbKeypoints = -1;
+		TMap<int, FName> Keypoints;
+		TArray<int> ParentsIdx;
+
         // Cached lookup results from GetRemappedBoneName
         TMap<FName, FName> BoneNameMap;
 
@@ -43,14 +46,13 @@ protected:
 		TMap<FName, float> ZEDBoneSize;
 
 		TMap<FName, FVector> BonesScale;
-		float RefPoseChestLength;
 
         // factor used to computer foot offset over time.
         float BoneScaleAlpha = 0.2f;
 		
 		int FeetOffsetBufferSize = 120;
 		std::deque<float> FeetOffsetBuffer;
-		float FeetOffsetAlpha = 0.2f;
+		float FeetOffsetAlpha = 1.0f;
 
 		float FeetOffset = 0;
 		float HeightOffset = 0;
