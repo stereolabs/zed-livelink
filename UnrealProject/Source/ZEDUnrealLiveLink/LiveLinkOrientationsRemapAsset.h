@@ -22,7 +22,7 @@ class ZEDUNREALLIVELINK_API ULiveLinkOrientationsRemapAsset : public ULiveLinkRe
     FCompactPoseBoneIndex GetCPIndex(int32 idx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames);
 
 public:
-    void BuildPoseFromAnimationData(float DeltaTime, const FLiveLinkSkeletonStaticData* InSkeletonData,
+    void BuildPoseFromZEDAnimationData(float DeltaTime, const FLiveLinkSkeletonStaticData* InSkeletonData,
         const FLiveLinkAnimationFrameData* InFrameData,
         FCompactPose& OutPose, USkeletalMeshComponent* SkeletalMesh);
 

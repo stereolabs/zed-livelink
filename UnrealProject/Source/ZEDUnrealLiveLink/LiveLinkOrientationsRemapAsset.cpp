@@ -68,7 +68,7 @@ void ULiveLinkOrientationsRemapAsset::propagateRestPoseRotations(int32 parentIdx
 }
 
 // Take Live Link data and apply it to skeleton bones in UE.
-void ULiveLinkOrientationsRemapAsset::BuildPoseFromAnimationData(float DeltaTime,
+void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaTime,
     const FLiveLinkSkeletonStaticData* InSkeletonData,
     const FLiveLinkAnimationFrameData* InFrameData,
     FCompactPose& OutPose,
