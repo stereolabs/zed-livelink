@@ -94,7 +94,7 @@ void FAnimNode_ZEDLiveLinkPose::Evaluate_AnyThread(FPoseContext& Output)
 				CurrentRetargetAsset->EnableStickAvatarOnFloor(bStickAvatarOnFloor);
 				CurrentRetargetAsset->EnableBoneScaling(bBoneScaling);
 				CurrentRetargetAsset->SetHeightOffset(HeightOffset);
-				CurrentRetargetAsset->BuildPoseFromAnimationData(CachedDeltaTime, SkeletonData, FrameData, Output.Pose, SkeletalMesh);
+				CurrentRetargetAsset->BuildPoseFromZEDAnimationData(CachedDeltaTime, SkeletonData, FrameData, Output.Pose, SkeletalMesh);
 				CurrentRetargetAsset->BuildPoseAndCurveFromBaseData(CachedDeltaTime, SkeletonData, FrameData, Output.Pose, Output.Curve);
 				CachedDeltaTime = 0.f; // Reset so that if we evaluate again we don't "create" time inside of the retargeter
 			}
