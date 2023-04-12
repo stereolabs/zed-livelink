@@ -242,9 +242,6 @@ int main(int argc, char **argv)
 					}
 				}
 			}
-			else {
-				std::cout << "Process Failed " << std::endl;
-			}
 			sl::sleep_ms(10);
 		}
 		else if (IsConnected == true) {
