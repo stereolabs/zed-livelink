@@ -305,12 +305,10 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData
 	FQuat global_rotation = FQuat(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w);
 	if (rootPosition.ContainsNaN())
 	{
-		std::cout << "rootPosition  of index : 0 is nan " << std::endl;
 		rootPosition = FVector::ZeroVector;
 	}
 	if (global_rotation.ContainsNaN())
 	{
-		std::cout << "global_rotation  of index : 0 is nan " << std::endl;
 		global_rotation = FQuat::Identity;
 	}
 
@@ -326,13 +324,11 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData
 		FVector position = FVector(worldTranslation.x, worldTranslation.y, worldTranslation.z);
 		if (position.ContainsNaN())
 		{
-			std::cout << "worldTranslation  of index : "<< i <<"  is nan " << std::endl;
 			position = FVector::ZeroVector;
 		}
 		FQuat rotation = FQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
 		if (rotation.ContainsNaN())
 		{
-			std::cout << "rotation  of index " << i << "is nan " << std::endl;
 			rotation = FQuat::Identity;
 		}
 
@@ -384,9 +380,6 @@ void PopulateSkeletonsData(SL_Bodies& bodies) {
 				remainingKeyList.Remove(bodyData.id);
 			}
 		}
-		else
-		{
-		} 
 	}
 	for (int index = 0; index < remainingKeyList.Num(); index++)
 	{
