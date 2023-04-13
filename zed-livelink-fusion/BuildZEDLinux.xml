@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../../../Engine/Build/Graph/Schema.xsd" >
   <Property Name="LocalBinaryDir" Value="$(RootDir)/Engine/Binaries/Linux"/>
-  <Property Name="LocalSourceDir" Value="$(RootDir)/Engine/Source/Programs/zed-livelink-plugin/zed-livelink-fusion"/>
+  <Property Name="LocalSourceDir" Value="$(RootDir)/Engine/Source/Programs/zed-livelink/zed-livelink-fusion"/>
   <Agent Name="ZEDLiveLinkFusion" Type="Linux">
     <Node Name="Compile UnrealHeaderTool Linux">
       <Compile Target="UnrealHeaderTool" Platform="Linux" Configuration="Test" Arguments="-precompile -nodebuginfo"/>
