@@ -80,7 +80,7 @@ TMap<int, StreamedSkeletonData> StreamedSkeletons;
 TArray<FString> targetBone;
 TArray<int> parentsIdx;
 
-///////////////////////////////////////
+////////////////////////////////////////
 ///////////// MAIN ////////////////////
 ///////////////////////////////////////
 
@@ -294,7 +294,6 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData
 
 	if (position.ContainsNaN())
 	{
-		std::cout << "position  of index :  0  is nan " << std::endl;
 		position = FVector::ZeroVector;
 	}
 
@@ -311,7 +310,6 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData
 		position = FVector(worldTranslation.x, worldTranslation.y, worldTranslation.z);
 		if (position.ContainsNaN())
 		{
-			std::cout << "position of index :  " << i << " is nan " << std::endl;
 			position = FVector::ZeroVector;
 		}
 
@@ -319,7 +317,6 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData
 
 		if (jointRotation.ContainsNaN())
 		{
-			std::cout << "rotation of index :  " << i << " is nan " << std::endl;
 			position = FVector::ZeroVector;
 		}
 
