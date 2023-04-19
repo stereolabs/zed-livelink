@@ -71,7 +71,7 @@ The remap asset **must** be set in the **Anim blueprint**, in the **ZED Livelink
 
 For example, if you are using the Body format *Body_38*, open the **ABP_ZED_Manny** anim blueprint, select the **ZED LivelinkPose** component and, in the Detail panel, set the **Remap Asset** field to **RemapAssetBody38**
 
-![](../images/remap_asset_selection.png)
+![](../images/remap_asset_selection.jpg)
 
 ### 4. Run ZED Live Link
 
