@@ -352,6 +352,7 @@ struct SL_BodyTrackingParameters
 	bool allow_reduced_precision_inference;
 
 	SL_BodyTrackingParameters() {
+		instance_module_id = 0;
 		image_sync = true;
 		enable_tracking = true;
 		enable_segmentation = false;
