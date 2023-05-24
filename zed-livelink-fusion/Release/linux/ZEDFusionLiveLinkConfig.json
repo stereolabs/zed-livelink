@@ -1,7 +1,7 @@
 {
     "InitParameters":
     {
-      "resolution": "HD1080",
+      "resolution": "HD720",
       "fps": 30,
       "depth_mode": "ULTRA"
     },
