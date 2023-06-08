@@ -11,7 +11,9 @@ public class ZEDLiveLink : ModuleRules
         string CudaSDKPath = "";
         string ZEDSDKPath = "";
 
-        if (Target.Platform == UnrealTargetPlatform.Win64) {
+		bEnableUndefinedIdentifierWarnings = false;
+
+		if (Target.Platform == UnrealTargetPlatform.Win64) {
             CudaSDKPath = System.Environment.GetEnvironmentVariable("CUDA_PATH", EnvironmentVariableTarget.Machine);
 			ZEDSDKPath = System.Environment.GetEnvironmentVariable("ZED_SDK_ROOT_DIR", EnvironmentVariableTarget.Machine);
 		}
