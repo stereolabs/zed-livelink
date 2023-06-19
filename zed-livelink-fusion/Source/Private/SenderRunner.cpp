@@ -90,6 +90,8 @@ void SenderRunner::work() {
 	SL_BodyTrackingRuntimeParameters bt_rt_params;
 	bt_rt_params.detection_confidence_threshold = 40;
 	bt_rt_params.detection_confidence_threshold = confidence_threshold;
+	bt_rt_params.skeleton_smoothing = 0.0f;
+
     while (running) {
 		auto err = zed.Grab(rt_params);
         if (err == sl::ERROR_CODE::SUCCESS) {

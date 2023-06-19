@@ -114,9 +114,9 @@ sl::BODY_FORMAT toBodyFormat(std::string value)
 	else if (value == "BODY_38") {
 		format = sl::BODY_FORMAT::BODY_38;
 	}
-	else if (value == "BODY_70") {
+	/*else if (value == "BODY_70") {
 		format = sl::BODY_FORMAT::BODY_70;
-	}
+	}*/
 	else
 		format = sl::BODY_FORMAT::BODY_34;
 
@@ -149,7 +149,7 @@ struct ZEDFusionConfig {
 	bool verbose = false;
 	int skeleton_minimm_allowed_keypoints = -1;
 	int skeleton_minimum_allowed_camera = -1;
-	float skeleton_smoothing = 0;
+	float fusion_skeleton_smoothing = 0;
 
 	sl::RESOLUTION sender_resolution;
 	int sender_fps;
@@ -206,8 +206,8 @@ struct ZEDFusionConfig {
 		skeleton_minimum_allowed_camera = injson["BodyTrackingFusionParameters"]["skeleton_minimum_allowed_camera"];
 		std::cout << "skeleton_minimum_allowed_camera : " << skeleton_minimum_allowed_camera << std::endl;
 
-		skeleton_smoothing = injson["BodyTrackingFusionParameters"]["skeleton_smoothing"];
-		std::cout << "skeleton_smoothing : " << skeleton_smoothing << std::endl;
+		fusion_skeleton_smoothing = injson["BodyTrackingFusionParameters"]["skeleton_smoothing"];
+		std::cout << "skeleton_smoothing : " << fusion_skeleton_smoothing << std::endl;
 	}
 };
 

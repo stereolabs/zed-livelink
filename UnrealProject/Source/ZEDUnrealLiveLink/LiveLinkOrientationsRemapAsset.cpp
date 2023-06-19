@@ -6,7 +6,7 @@
 
 void ULiveLinkOrientationsRemapAsset::SetHeightOffset(float Offset)
 {
-	HeightOffset = Offset;
+	ManualHeightOffset = Offset;
 }
 
 void ULiveLinkOrientationsRemapAsset::EnableBoneScaling(bool BoneScaling)
@@ -90,17 +90,23 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaT
 			Keypoints = Keypoints38;
 			ParentsIdx = parents38Idx;
 		}
-		else if (InFrameData->Transforms.Num() == Keypoints70.Num() * 2)// BODY_70
+		/*else if (InFrameData->Transforms.Num() == Keypoints70.Num() * 2)// BODY_70
 		{
 			NbKeypoints = 70;
 			Keypoints = Keypoints70;
 			ParentsIdx = parents70Idx;
-		}
+		}*/
 		else if (InFrameData->Transforms.Num() == Keypoints34.Num() * 2)// BODY_34
 		{
 			NbKeypoints = 34;
 			Keypoints = Keypoints34;
 			ParentsIdx = parents34Idx;
+		}
+		else
+		{
+			NbKeypoints = 38;
+			Keypoints = Keypoints38;
+			ParentsIdx = parents38Idx;
 		}
 	}
 
@@ -158,47 +164,38 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaT
 			// Compute the distance between one foot and the ground (the first static object found by the ray cast).
 			if (RaycastLeftFoot)
 			{
-				LeftFootFloorDistance = (LeftFootPosition + FVector(0, 0, FeetOffset) - HitLeftFoot.ImpactPoint).Z;
+				LeftFootFloorDistance = (LeftFootPosition + FVector(0, 0, AutomaticHeightOffset) - HitLeftFoot.ImpactPoint).Z;
 			}
 
 			if (RaycastRightFoot)
 			{
-				RightFootFloorDistance = (RightFootPosition + FVector(0, 0, FeetOffset) - HitRightFoot.ImpactPoint).Z;
+				RightFootFloorDistance = (RightFootPosition + FVector(0, 0, AutomaticHeightOffset) - HitRightFoot.ImpactPoint).Z;
 			}
 
-			float MinFootFloorDistance = 0;
-
-			// If both feet are under the ground, use the max value instead of the min value.
-			if (RightFootFloorDistance < 0 && LeftFootFloorDistance < 0) {
-
-				MinFootFloorDistance = -1.0f * fmax(abs(RightFootFloorDistance), abs(LeftFootFloorDistance));
-				FeetOffset = FeetOffsetAlpha* MinFootFloorDistance + (1 - FeetOffsetAlpha) * FeetOffset;
-
-			}
-			else if (RightFootFloorDistance > 0 && LeftFootFloorDistance > 0)
+			if (abs(fminf(LeftFootFloorDistance, RightFootFloorDistance)) <= DistanceToFloorThreshold)
 			{
-				MinFootFloorDistance = fmin(abs(RightFootFloorDistance), abs(LeftFootFloorDistance));
-
-				// The feet offset is added in the buffer of size "FeetOffsetBufferSize". If the buffer is already full, remove the oldest value (the first of the deque)
-				if (FeetOffsetBuffer.size() == FeetOffsetBufferSize)
-				{
-					FeetOffsetBuffer.pop_front();
-				}
-				FeetOffsetBuffer.push_back(MinFootFloorDistance);
-
-				// The feet offset is the min element of this deque (of size FeetOffsetBufferSize).
-				FeetOffset = *std::min_element(FeetOffsetBuffer.begin(), FeetOffsetBuffer.end());
+				// Reset counter 
+				DurationOffsetError = 0;
 			}
 			else
 			{
-				MinFootFloorDistance = fmin(RightFootFloorDistance, LeftFootFloorDistance);
-				FeetOffset = FeetOffsetAlpha * MinFootFloorDistance + (1 - FeetOffsetAlpha) * FeetOffset;
+				auto NowTS_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				DurationOffsetError += (NowTS_ms - PreviousTS_ms) / 1000.0f;
+				PreviousTS_ms = NowTS_ms;
+
+				if (DurationOffsetError > DurationOffsetErrorThreshold)
+				{
+					AutomaticHeightOffset = fmin(LeftFootFloorDistance, RightFootFloorDistance);
+					DurationOffsetError = 0;
+
+					//UE_LOG(LogTemp, Warning, TEXT("Recomputing offset ... %f"), AutomaticHeightOffset);
+				}
 			}
 		}
 	}
 	else
 	{
-		FeetOffset = 0;
+		AutomaticHeightOffset = 0;
 	}
 
 	TArray<FName> TargetBoneNames;
@@ -265,8 +262,8 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaT
                     float HipOffset = FMath::Abs(OutPose[leftUpLegIndex].GetTranslation().Z) * OutPose[CPIndexRoot].GetScale3D().Z;
 
                     RootPosition.Z += HipOffset; // The position of the root in UE and in the SDK are slightly different. This offset compensates it.
-					RootPosition.Z += HeightOffset;
-					RootPosition.Z -= FeetOffset;
+					RootPosition.Z += ManualHeightOffset;
+					RootPosition.Z -= AutomaticHeightOffset;
 
 					Translation = RootPosition;
 

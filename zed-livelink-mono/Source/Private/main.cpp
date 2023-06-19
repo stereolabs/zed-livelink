@@ -121,11 +121,11 @@ int main(int argc, char **argv)
 		targetBone = targetBone38;
 		parentsIdx = parents38Idx;
 	}
-	else if (zed_config.body_format == sl::BODY_FORMAT::BODY_70)
+	/*else if (zed_config.body_format == sl::BODY_FORMAT::BODY_70)
 	{
 		targetBone = targetBone70;
 		parentsIdx = parents70Idx;
-	}
+	}*/
 	else if (zed_config.body_format == sl::BODY_FORMAT::BODY_18)
 	{
 		std::cout << "Body 18 is not compatible. Please use Body 34/38 or 70" << std::endl;
@@ -348,6 +348,7 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed, ZEDConfig& config)
 	SL_BodyTrackingRuntimeParameters body_tracking_rt_params;
 	body_tracking_rt_params.detection_confidence_threshold = config.detection_confidence;
 	body_tracking_rt_params.minimum_keypoints_threshold = config.minimum_keypoints_threshold;
+	body_tracking_rt_params.skeleton_smoothing = config.skeleton_smoothing;
 	SL_Bodies bodies;
 	e = zed->RetrieveBodies(body_tracking_rt_params, bodies, 0);
 	if (e != ERROR_CODE::SUCCESS)
