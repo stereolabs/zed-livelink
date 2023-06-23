@@ -114,9 +114,9 @@ sl::BODY_FORMAT toBodyFormat(std::string value)
 	else if (value == "BODY_38") {
 		format = sl::BODY_FORMAT::BODY_38;
 	}
-	/*else if (value == "BODY_70") {
+	else if (value == "BODY_70") {
 		format = sl::BODY_FORMAT::BODY_70;
-	}*/
+	}
 	else
 		format = sl::BODY_FORMAT::BODY_34;
 

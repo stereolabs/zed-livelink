@@ -19,16 +19,56 @@ void ULiveLinkOrientationsRemapAsset::EnableStickAvatarOnFloor(bool bEnableStick
 	bStickAvatarOnFloor = bEnableStickAvatarOnFloor;
 }
 
-FCompactPoseBoneIndex ULiveLinkOrientationsRemapAsset::GetCPIndex(int32 idx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames){
-    FName BoneName = TransformedBoneNames[idx];
-    const int32 MeshIndex = OutPose.GetBoneContainer().GetPoseBoneIndexForBoneName(BoneName);
-    if (MeshIndex != INDEX_NONE)
-    {
-        FCompactPoseBoneIndex CPIndex = OutPose.GetBoneContainer().MakeCompactPoseIndex(
-            FMeshPoseBoneIndex(MeshIndex));
-        return CPIndex;
-    }
-    return (FCompactPoseBoneIndex) INDEX_NONE;
+FCompactPoseBoneIndex ULiveLinkOrientationsRemapAsset::GetCPIndex(int32 idx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames) {
+	FName BoneName = TransformedBoneNames[idx];
+	const int32 MeshIndex = OutPose.GetBoneContainer().GetPoseBoneIndexForBoneName(BoneName);
+	if (MeshIndex != INDEX_NONE)
+	{
+		FCompactPoseBoneIndex CPIndex = OutPose.GetBoneContainer().MakeCompactPoseIndex(
+			FMeshPoseBoneIndex(MeshIndex));
+		return CPIndex;
+	}
+	return (FCompactPoseBoneIndex)INDEX_NONE;
+}
+
+float ULiveLinkOrientationsRemapAsset::ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData) 
+{
+	float avatarTotalTranslation = 0.f;
+	float SDKTotalTranslation = 0.f;
+	
+	if (NbKeypoints <= 34)
+	{
+		for (int32 i = 22; i < 24; i++)
+		{
+			FTransform BoneTransform = InFrameData->Transforms[i];
+			FCompactPoseBoneIndex CPIndex = GetCPIndex(i, OutPose, TransformedBoneNames);
+			if (CPIndex != INDEX_NONE)
+			{
+				avatarTotalTranslation += OutPose[CPIndex].GetTranslation().Size();
+				SDKTotalTranslation += BoneTransform.GetTranslation().Size();
+			}
+		}
+	}
+	else
+	{
+		for (int32 i = 19; i < 23; i++)
+		{
+			FTransform BoneTransform = InFrameData->Transforms[i];
+			FCompactPoseBoneIndex CPIndex = GetCPIndex(i, OutPose, TransformedBoneNames);
+			if (CPIndex != INDEX_NONE)
+			{
+				avatarTotalTranslation += OutPose[CPIndex].GetTranslation().Size();
+				SDKTotalTranslation += BoneTransform.GetTranslation().Size();
+			}
+		}
+	}
+
+	float factor = avatarTotalTranslation / SDKTotalTranslation;
+	float scale = 1.f;
+	FCompactPoseBoneIndex CPIndexRoot = GetCPIndex(0, OutPose, TransformedBoneNames);
+	if (CPIndexRoot != INDEX_NONE)
+		scale = OutPose[CPIndexRoot].GetScale3D().Z;
+	return FMath::Abs(scale * factor);
 }
 
 void ULiveLinkOrientationsRemapAsset::putInRefPose(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames){
@@ -90,12 +130,12 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaT
 			Keypoints = Keypoints38;
 			ParentsIdx = parents38Idx;
 		}
-		/*else if (InFrameData->Transforms.Num() == Keypoints70.Num() * 2)// BODY_70
+		else if (InFrameData->Transforms.Num() == Keypoints70.Num() * 2)// BODY_70
 		{
 			NbKeypoints = 70;
 			Keypoints = Keypoints70;
 			ParentsIdx = parents70Idx;
-		}*/
+		}
 		else if (InFrameData->Transforms.Num() == Keypoints34.Num() * 2)// BODY_34
 		{
 			NbKeypoints = 34;
@@ -257,6 +297,8 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaT
                 // Only use position + rotation data for root. For all other bones, set rotation only.
                 if (BoneName == BoneNameMap[GetTargetRootName()])
                 {
+					float rootScaleFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData);
+
                     FVector RootPosition = BoneTransform.GetTranslation();
                     FCompactPoseBoneIndex leftUpLegIndex = GetCPIndex(*Keypoints.FindKey(FName("LEFT_HIP")), OutPose, TransformedBoneNames);
                     float HipOffset = FMath::Abs(OutPose[leftUpLegIndex].GetTranslation().Z) * OutPose[CPIndexRoot].GetScale3D().Z;
@@ -264,6 +306,7 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaT
                     RootPosition.Z += HipOffset; // The position of the root in UE and in the SDK are slightly different. This offset compensates it.
 					RootPosition.Z += ManualHeightOffset;
 					RootPosition.Z -= AutomaticHeightOffset;
+					//RootPosition.Z *= rootScaleFactor;
 
 					Translation = RootPosition;
 

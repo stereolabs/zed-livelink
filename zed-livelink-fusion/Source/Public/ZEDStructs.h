@@ -404,6 +404,7 @@ struct SL_PositionalTrackingParameters
 	float depth_min_range = -1.0f;
 	bool set_gravity_as_origin = true;
 	sl::String area_file_path = "";
+	sl::POSITIONAL_TRACKING_MODE mode = sl::POSITIONAL_TRACKING_MODE::STANDARD;
 };
 
 /*
@@ -456,12 +457,12 @@ struct SL_BodyData
 	sl::float3 bounding_box[8];
 	sl::float3 head_bounding_box[8];
 	sl::float2 head_bounding_box_2d[4];
-	sl::float2 keypoint_2d[38];
-	sl::float3 keypoint[38];
-	float keypoint_confidence[38];
-	float keypoint_covariances[38][6];
-	sl::float3 local_position_per_joint[38];
-	sl::float4 local_orientation_per_joint[38];
+	sl::float2 keypoint_2d[70];
+	sl::float3 keypoint[70];
+	float keypoint_confidence[70];
+	float keypoint_covariances[70][6];
+	sl::float3 local_position_per_joint[70];
+	sl::float4 local_orientation_per_joint[70];
 	sl::float4 global_root_orientation;
 };
 

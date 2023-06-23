@@ -172,11 +172,11 @@ int main(int argc, char **argv)
 		targetBone = targetBone38;
 		parentsIdx = parents38Idx;
 	}
-	/*else if (zed_fusion_config.sender_body_format == sl::BODY_FORMAT::BODY_70)
+	else if (zed_fusion_config.sender_body_format == sl::BODY_FORMAT::BODY_70)
 	{
 		targetBone = targetBone70;
 		parentsIdx = parents70Idx;
-	}*/
+	}
 	else if (zed_fusion_config.sender_body_format == sl::BODY_FORMAT::BODY_18)
 	{
 		std::cout << "Body 18 is not compatible. Please use Body 34/38 or 70" << std::endl;

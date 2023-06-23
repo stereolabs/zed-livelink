@@ -115,9 +115,9 @@ sl::BODY_FORMAT toBodyFormat(std::string value)
 	else if (value == "BODY_38") {
 		format = sl::BODY_FORMAT::BODY_38;
 	}
-	/*else if (value == "BODY_70") {
+	else if (value == "BODY_70") {
 		format = sl::BODY_FORMAT::BODY_70;
-	}*/
+	}
 	else
 		format = sl::BODY_FORMAT::BODY_34;
 
@@ -162,7 +162,7 @@ struct ZEDConfig {
 	float detection_confidence;
 	float max_range;
 	int minimum_keypoints_threshold;
-	int skeleton_smoothing;
+	float skeleton_smoothing;
 
 	void read(nlohmann::json& injson) {
 
@@ -185,26 +185,29 @@ struct ZEDConfig {
 		enable_body_tracking_module = injson["BodyTrackingParameters"]["enable_module"];
 		std::cout << "enable_body_tracking_module : " << enable_body_tracking_module << std::endl;
 
-		detection_model = toDetectionModel(injson["BodyTrackingParameters"]["detection_model"]);
-		std::cout << "detection_model : " << detection_model << std::endl;
+		if (enable_body_tracking_module)
+		{
+			detection_model = toDetectionModel(injson["BodyTrackingParameters"]["detection_model"]);
+			std::cout << "detection_model : " << detection_model << std::endl;
 
-		body_format = toBodyFormat(injson["BodyTrackingParameters"]["body_format"]);
-		std::cout << "body_format : " << body_format << std::endl;
+			body_format = toBodyFormat(injson["BodyTrackingParameters"]["body_format"]);
+			std::cout << "body_format : " << body_format << std::endl;
 
-		body_selection = toBodySelection(injson["BodyTrackingParameters"]["body_selection"]);
-		std::cout << "body_selection : " << body_selection << std::endl;
+			body_selection = toBodySelection(injson["BodyTrackingParameters"]["body_selection"]);
+			std::cout << "body_selection : " << body_selection << std::endl;
 
-		detection_confidence = injson["BodyTrackingParameters"]["confidence"];
-		std::cout << "confidence : " << detection_confidence << std::endl;
+			detection_confidence = injson["BodyTrackingParameters"]["confidence"];
+			std::cout << "confidence : " << detection_confidence << std::endl;
 
-		max_range = injson["BodyTrackingParameters"]["max_range"];
-		std::cout << "max_range : " << max_range << std::endl;
+			max_range = injson["BodyTrackingParameters"]["max_range"];
+			std::cout << "max_range : " << max_range << std::endl;
 
-		minimum_keypoints_threshold = injson["BodyTrackingParameters"]["minimum_keypoints_threshold"];
-		std::cout << "minimum_keypoints_threshold : " << minimum_keypoints_threshold << std::endl;
+			minimum_keypoints_threshold = injson["BodyTrackingParameters"]["minimum_keypoints_threshold"];
+			std::cout << "minimum_keypoints_threshold : " << minimum_keypoints_threshold << std::endl;
 
-		skeleton_smoothing = injson["BodyTrackingParameters"]["skeleton_smoothing"];
-		std::cout << "skeleton_smoothing : " << skeleton_smoothing << std::endl;
+			skeleton_smoothing = injson["BodyTrackingParameters"]["skeleton_smoothing"];
+			std::cout << "skeleton_smoothing : " << skeleton_smoothing << std::endl;
+		}
 
 		sl::InputType::INPUT_TYPE i_type = toInputType(injson["InitParameters"]["input"]);
 

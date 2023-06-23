@@ -68,7 +68,7 @@ void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton);
 ERROR_CODE PopulateSkeletonsData(ZEDCamera* cam, ZEDConfig& config);
 ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig& config);
 FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose);
-StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData& objectData, double timestamp);
+StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& objectData, double timestamp);
 
 bool IsConnected = false;
 bool enableBodyTracking = false;
@@ -121,11 +121,11 @@ int main(int argc, char **argv)
 		targetBone = targetBone38;
 		parentsIdx = parents38Idx;
 	}
-	/*else if (zed_config.body_format == sl::BODY_FORMAT::BODY_70)
+	else if (zed_config.body_format == sl::BODY_FORMAT::BODY_70)
 	{
 		targetBone = targetBone70;
 		parentsIdx = parents70Idx;
-	}*/
+	}
 	else if (zed_config.body_format == sl::BODY_FORMAT::BODY_18)
 	{
 		std::cout << "Body 18 is not compatible. Please use Body 34/38 or 70" << std::endl;
@@ -290,7 +290,7 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData
 	}
 	
 	FVector position = FVector(bodyPosition.x, bodyPosition.y, bodyPosition.z);
-	FQuat global_rotation = FQuat(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w); // 180deg rotation on Z Axis.
+	FQuat global_rotation = FQuat(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w);
 
 	if (position.ContainsNaN())
 	{
