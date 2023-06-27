@@ -68,7 +68,7 @@ void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton);
 ERROR_CODE PopulateSkeletonsData(ZEDCamera* cam, ZEDConfig& config);
 ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig& config);
 FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose);
-StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_ObjectData& objectData, double timestamp);
+StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& objectData, double timestamp);
 
 bool IsConnected = false;
 bool enableBodyTracking = false;
@@ -290,7 +290,7 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData
 	}
 	
 	FVector position = FVector(bodyPosition.x, bodyPosition.y, bodyPosition.z);
-	FQuat global_rotation = FQuat(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w); // 180deg rotation on Z Axis.
+	FQuat global_rotation = FQuat(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w);
 
 	if (position.ContainsNaN())
 	{
@@ -348,6 +348,7 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed, ZEDConfig& config)
 	SL_BodyTrackingRuntimeParameters body_tracking_rt_params;
 	body_tracking_rt_params.detection_confidence_threshold = config.detection_confidence;
 	body_tracking_rt_params.minimum_keypoints_threshold = config.minimum_keypoints_threshold;
+	body_tracking_rt_params.skeleton_smoothing = config.skeleton_smoothing;
 	SL_Bodies bodies;
 	e = zed->RetrieveBodies(body_tracking_rt_params, bodies, 0);
 	if (e != ERROR_CODE::SUCCESS)

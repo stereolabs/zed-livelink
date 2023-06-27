@@ -202,7 +202,7 @@ int main(int argc, char **argv)
 	SL_Bodies bodies;
 	SL_BodyTrackingFusionRuntimeParameters BodyTrackingRuntimeParams;
 	BodyTrackingRuntimeParams.skeleton_minimum_allowed_keypoints = zed_fusion_config.skeleton_minimm_allowed_keypoints;
-	BodyTrackingRuntimeParams.skeleton_smoothing = zed_fusion_config.skeleton_smoothing;
+	BodyTrackingRuntimeParams.skeleton_smoothing = zed_fusion_config.fusion_skeleton_smoothing;
 	BodyTrackingRuntimeParams.skeleton_minimum_allowed_camera = zed_fusion_config.skeleton_minimum_allowed_camera;
 
 	SetCtrlHandler();

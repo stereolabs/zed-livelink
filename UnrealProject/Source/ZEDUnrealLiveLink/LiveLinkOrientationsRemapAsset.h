@@ -6,6 +6,7 @@
 #include "Containers/CircularQueue.h"
 #include <deque>
 #include <algorithm>
+#include <chrono> 
 
 #include "LiveLinkOrientationsRemapAsset.generated.h"
 
@@ -20,7 +21,7 @@ class ZEDUNREALLIVELINK_API ULiveLinkOrientationsRemapAsset : public ULiveLinkRe
     void propagateRestPoseRotations(int32 parentIdx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, TArray<int32> SourceBoneParents, FQuat restPoseRot, bool inverse);
     void putInRefPose(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames);
     FCompactPoseBoneIndex GetCPIndex(int32 idx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames);
-
+	float ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData);
 public:
     void BuildPoseFromZEDAnimationData(float DeltaTime, const FLiveLinkSkeletonStaticData* InSkeletonData,
         const FLiveLinkAnimationFrameData* InFrameData,
@@ -50,12 +51,17 @@ protected:
         // factor used to computer foot offset over time.
         float BoneScaleAlpha = 0.2f;
 		
-		int FeetOffsetBufferSize = 120;
-		std::deque<float> FeetOffsetBuffer;
-		float FeetOffsetAlpha = 1.0f;
+		float DurationOffsetErrorThreshold = 3.0f;
+		float DurationOffsetError = 0.0f;
+		long long PreviousTS_ms = 0;
 
-		float FeetOffset = 0;
-		float HeightOffset = 0;
+		float DistanceToFloorThreshold = 3.f;
+
+		float AutomaticHeightOffset = 0;
+		float ManualHeightOffset = 0;
+
+		float LeftAnkleToHeelOffset = 0;
+		float RightAnkleToHeelOffset = 0;
 
 		bool bStickAvatarOnFloor = true;
 

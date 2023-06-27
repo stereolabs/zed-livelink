@@ -373,6 +373,7 @@ struct SL_BodyTrackingRuntimeParameters
 {
 	float detection_confidence_threshold = 20;
 	int minimum_keypoints_threshold = -1;
+	float skeleton_smoothing = 0.2f;
 };
 
 struct SL_Pose {
@@ -403,6 +404,7 @@ struct SL_PositionalTrackingParameters
 	float depth_min_range = -1.0f;
 	bool set_gravity_as_origin = true;
 	sl::String area_file_path = "";
+	sl::POSITIONAL_TRACKING_MODE mode = sl::POSITIONAL_TRACKING_MODE::STANDARD;
 };
 
 /*

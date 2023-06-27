@@ -17,7 +17,7 @@ All the information is available [here](zed-livelink-fusion/README.md)
 
 This unreal project shows you how to use the body tracking data sent through live link to animate a 3D model.
 
-You can find more information on the Stereolabs [documentation](https://www.stereolabs.com/docs/livelink/)
+You can find more information on the Stereolabs [documentation](https://www.stereolabs.com/docs/livelink/livelink-ue5/)
 
 
 ## Connect to a livelink Source
