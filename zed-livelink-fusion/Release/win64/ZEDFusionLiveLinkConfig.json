@@ -3,7 +3,8 @@
     {
       "resolution": "HD720",
       "fps": 30,
-      "depth_mode": "ULTRA"
+      "depth_mode": "ULTRA",
+      "grab_compute_capping_fps": 0
     },
     "BodyTrackingParameters":
     {

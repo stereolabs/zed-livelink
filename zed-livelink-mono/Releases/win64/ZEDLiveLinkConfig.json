@@ -5,7 +5,8 @@
     "input_path": 0,
     "resolution": "HD720",
     "fps": 60,
-    "depth_mode": "ULTRA"
+    "depth_mode": "ULTRA",
+	"grab_compute_capping_fps": 0
   },
   "PositionalTrackingParameters":
   {

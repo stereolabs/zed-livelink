@@ -91,6 +91,15 @@ struct SL_InitParameters
 	float open_timeout_sec;
 
 	bool async_grab_camera_recovery;
+	/**
+	 Define a computation upper limit to the grab frequency.
+	 This can be useful to get a known constant fixed rate or limit the computation load while keeping a short exposure time by setting a high camera capture framerate.
+	 \n The value should be inferior to the InitParameters::camera_fps and strictly positive. It has no effect when reading an SVO file.
+	 \n This is an upper limit and won't make a difference if the computation is slower than the desired compute capping fps.
+	 \note Internally the grab function always tries to get the latest available image while respecting the desired fps as much as possible.
+	 default is 0.
+	 */
+	float grab_compute_capping_fps;
 
 	SL_InitParameters() {
 		input_type = sl::INPUT_TYPE::USB;
@@ -113,6 +122,7 @@ struct SL_InitParameters
 		enable_image_enhancement = true;
 		open_timeout_sec = 5.0f;
 		async_grab_camera_recovery = false;
+		grab_compute_capping_fps = 0;
 	}
 };
 
@@ -440,12 +450,12 @@ struct SL_BodyData
 	sl::float3 bounding_box[8];
 	sl::float3 head_bounding_box[8];
 	sl::float2 head_bounding_box_2d[4];
-	sl::float2 keypoint_2d[70];
-	sl::float3 keypoint[70];
-	float keypoint_confidence[70];
-	float keypoint_covariances[70][6];
-	sl::float3 local_position_per_joint[70];
-	sl::float4 local_orientation_per_joint[70];
+	sl::float2 keypoint_2d[38];
+	sl::float3 keypoint[38];
+	float keypoint_confidence[38];
+	float keypoint_covariances[38][6];
+	sl::float3 local_position_per_joint[38];
+	sl::float4 local_orientation_per_joint[38];
 	sl::float4 global_root_orientation;
 };
 

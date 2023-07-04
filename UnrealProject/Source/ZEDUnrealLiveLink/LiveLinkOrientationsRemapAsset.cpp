@@ -130,12 +130,14 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaT
 			Keypoints = Keypoints38;
 			ParentsIdx = parents38Idx;
 		}
+#if 0
 		else if (InFrameData->Transforms.Num() == Keypoints70.Num() * 2)// BODY_70
 		{
 			NbKeypoints = 70;
 			Keypoints = Keypoints70;
 			ParentsIdx = parents70Idx;
 		}
+#endif
 		else if (InFrameData->Transforms.Num() == Keypoints34.Num() * 2)// BODY_34
 		{
 			NbKeypoints = 34;
@@ -184,7 +186,7 @@ void ULiveLinkOrientationsRemapAsset::BuildPoseFromZEDAnimationData(float DeltaT
 				LeftFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[21]);
 				RightFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[25]);
 			}
-			else // body 38 or 70
+			else // body 38
 			{
 				LeftFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[24]);
 				RightFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[25]);

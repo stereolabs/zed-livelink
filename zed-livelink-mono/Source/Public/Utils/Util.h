@@ -115,9 +115,11 @@ sl::BODY_FORMAT toBodyFormat(std::string value)
 	else if (value == "BODY_38") {
 		format = sl::BODY_FORMAT::BODY_38;
 	}
+#if 0
 	else if (value == "BODY_70") {
 		format = sl::BODY_FORMAT::BODY_70;
 	}
+#endif
 	else
 		format = sl::BODY_FORMAT::BODY_34;
 
@@ -163,6 +165,7 @@ struct ZEDConfig {
 	float max_range;
 	int minimum_keypoints_threshold;
 	float skeleton_smoothing;
+	float grab_compute_capping_fps = 0;
 
 	void read(nlohmann::json& injson) {
 
@@ -175,6 +178,9 @@ struct ZEDConfig {
 
 		depth_mode = toDepthMode(injson["InitParameters"]["depth_mode"]);
 		std::cout << "depth_mode : " << depth_mode << std::endl;
+
+		grab_compute_capping_fps = injson["InitParameters"]["grab_compute_capping_fps"];
+		std::cout << "grab_compute_capping_fps : " << grab_compute_capping_fps << std::endl;
 
 		enable_pose_smoothing = injson["PositionalTrackingParameters"]["enable_pose_smoothing"];
 		std::cout << "enable_pose_smoothing : " << enable_pose_smoothing << std::endl;
@@ -428,6 +434,7 @@ const TArray<int> parents38Idx = {
 	17
 };
 
+#if 0
 const TArray<FString> targetBone70 = {
 	"PELVIS",
 	"SPINE_1",
@@ -714,6 +721,8 @@ const TArray<int> parents70Idx = {
 	51,
 	52,
 };
+
+#endif
 
 const TArray<FString> targetBone34 = {
 	"PELVIS",

@@ -121,14 +121,16 @@ int main(int argc, char **argv)
 		targetBone = targetBone38;
 		parentsIdx = parents38Idx;
 	}
+#if 0
 	else if (zed_config.body_format == sl::BODY_FORMAT::BODY_70)
 	{
 		targetBone = targetBone70;
 		parentsIdx = parents70Idx;
 	}
+#endif
 	else if (zed_config.body_format == sl::BODY_FORMAT::BODY_18)
 	{
-		std::cout << "Body 18 is not compatible. Please use Body 34/38 or 70" << std::endl;
+		std::cout << "Body 18 is not compatible. Please use Body 34/38 " << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -234,6 +236,7 @@ ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig& config)
 	init_params.depth_mode = config.depth_mode;
 	init_params.sdk_verbose = 1;
 	init_params.input_type = config.input_type;
+	init_params.grab_compute_capping_fps = config.grab_compute_capping_fps;
 	//parseArgs(argc, argv, init_params, pathSVO, ip, port);
 	ERROR_CODE err = zed->Open(init_params, config.serial_number, pathSVO.c_str(), ip.c_str(), port);
 

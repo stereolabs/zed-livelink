@@ -114,9 +114,11 @@ sl::BODY_FORMAT toBodyFormat(std::string value)
 	else if (value == "BODY_38") {
 		format = sl::BODY_FORMAT::BODY_38;
 	}
+#if 0
 	else if (value == "BODY_70") {
 		format = sl::BODY_FORMAT::BODY_70;
 	}
+#endif
 	else
 		format = sl::BODY_FORMAT::BODY_34;
 
@@ -159,6 +161,7 @@ struct ZEDFusionConfig {
 	sl::BODY_KEYPOINTS_SELECTION sender_body_selection;
 	float sender_confidence;
 	float sender_max_range;
+	float grab_compute_capping_fps = 0;
 
 	void read(nlohmann::json& injson) {
 
@@ -172,6 +175,9 @@ struct ZEDFusionConfig {
 
 		sender_depth_mode = toDepthMode(injson["InitParameters"]["depth_mode"]);
 		std::cout << "depth_mode : " << sender_depth_mode << std::endl;
+
+		grab_compute_capping_fps = injson["InitParameters"]["grab_compute_capping_fps"];
+		std::cout << "grab_compute_capping_fps : " << grab_compute_capping_fps << std::endl;
 
 		sender_detection_model = toDetectionModel(injson["BodyTrackingParameters"]["detection_model"]);
 		std::cout << "detection_model : " << sender_detection_model << std::endl;
