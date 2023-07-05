@@ -80,6 +80,50 @@ const TArray<int> parents38Idx = {
 	17
 };
 
+static TMap<int, FName> Keypoints38 = TMap<int, FName>{
+	{0, "PELVIS"},
+	{1, "SPINE_1"},
+	{2, "SPINE_2"},
+	{3, "SPINE_3"},
+	{4, "NECK"},
+	{5, "NOSE"},
+	{6, "LEFT_EYE"},
+	{7, "RIGHT_EYE"},
+	{8, "LEFT_EAR"},
+	{9, "RIGHT_EAR"},
+	{10, "LEFT_CLAVICLE"},
+	{11, "RIGHT_CLAVICLE"},
+	{12, "LEFT_SHOULDER"},
+	{13, "RIGHT_SHOULDER"},
+	{14, "LEFT_ELBOW"},
+	{15, "RIGHT_ELBOW"},
+	{16, "LEFT_WRIST"},
+	{17, "RIGHT_WRIST"},
+	{18, "LEFT_HIP"},
+	{19, "RIGHT_HIP"},
+	{20, "LEFT_KNEE"},
+	{21, "RIGHT_KNEE"},
+	{22, "LEFT_ANKLE"},
+	{23, "RIGHT_ANKLE"},
+	{24, "LEFT_BIG_TOE"},
+	{25, "RIGHT_BIG_TOE"},
+	{26, "LEFT_SMALL_TOE"},
+	{27, "RIGHT_SMALL_TOE"},
+	{28, "LEFT_HEEL"},
+	{29, "RIGHT_HEEL"},
+	{30, "LEFT_HAND_THUMB_4"},
+	{31, "RIGHT_HAND_THUMB_4"},
+	{32, "LEFT_HAND_INDEX_1"},
+	{33, "RIGHT_HAND_INDEX_1"},
+	{34, "LEFT_HAND_MIDDLE_4"},
+	{35, "RIGHT_HAND_MIDDLE_4"},
+	{36, "LEFT_HAND_PINKY_1"},
+	{37, "RIGHT_HAND_PINKY_1"},
+};
+
+#if 0
+
+
 const TArray<int> parents70Idx = {
 	-1,
 	0,
@@ -151,47 +195,6 @@ const TArray<int> parents70Idx = {
 	50,
 	51,
 	52
-};
-
-static TMap<int, FName> Keypoints38 = TMap<int, FName>{
-	{0, "PELVIS"},
-	{1, "SPINE_1"},
-	{2, "SPINE_2"},
-	{3, "SPINE_3"},
-	{4, "NECK"},
-	{5, "NOSE"},
-	{6, "LEFT_EYE"},
-	{7, "RIGHT_EYE"},
-	{8, "LEFT_EAR"},
-	{9, "RIGHT_EAR"},
-	{10, "LEFT_CLAVICLE"},
-	{11, "RIGHT_CLAVICLE"},
-	{12, "LEFT_SHOULDER"},
-	{13, "RIGHT_SHOULDER"},
-	{14, "LEFT_ELBOW"},
-	{15, "RIGHT_ELBOW"},
-	{16, "LEFT_WRIST"},
-	{17, "RIGHT_WRIST"},
-	{18, "LEFT_HIP"},
-	{19, "RIGHT_HIP"},
-	{20, "LEFT_KNEE"},
-	{21, "RIGHT_KNEE"},
-	{22, "LEFT_ANKLE"},
-	{23, "RIGHT_ANKLE"},
-	{24, "LEFT_BIG_TOE"},
-	{25, "RIGHT_BIG_TOE"},
-	{26, "LEFT_SMALL_TOE"},
-	{27, "RIGHT_SMALL_TOE"},
-	{28, "LEFT_HEEL"},
-	{29, "RIGHT_HEEL"},
-	{30, "LEFT_HAND_THUMB_4"},
-	{31, "RIGHT_HAND_THUMB_4"},
-	{32, "LEFT_HAND_INDEX_1"},
-	{33, "RIGHT_HAND_INDEX_1"},
-	{34, "LEFT_HAND_MIDDLE_4"},
-	{35, "RIGHT_HAND_MIDDLE_4"},
-	{36, "LEFT_HAND_PINKY_1"},
-	{37, "RIGHT_HAND_PINKY_1"},
 };
 
 static TMap<int, FName> Keypoints70 = TMap<int, FName>{
@@ -266,6 +269,8 @@ static TMap<int, FName> Keypoints70 = TMap<int, FName>{
 	{68, "RIGHT_HAND_PINKY_3"},
 	{69, "RIGHT_HAND_PINKY_4"}
 };
+
+#endif
 
 static TMap<int, FName> Keypoints34 = TMap<int, FName>{
 	{0, "PELVIS"},

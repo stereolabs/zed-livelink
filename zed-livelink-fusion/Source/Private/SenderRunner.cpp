@@ -22,6 +22,7 @@ bool SenderRunner::open(SL_FusionConfiguration z_input, int cam_id, ZEDFusionCon
 	init_params.camera_resolution = zed_fusion_config.sender_resolution;
 	init_params.svo_real_time_mode = true;
     init_params.input_type = fusion_config.input.input_type;
+	init_params.grab_compute_capping_fps = zed_fusion_config.grab_compute_capping_fps;
 	std::cout << init_params.input_type << std::endl;
 	if (fusion_config.input.input_type == sl::INPUT_TYPE::USB)
 		init_params.camera_device_id = cam_id;
