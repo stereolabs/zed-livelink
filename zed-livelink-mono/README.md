@@ -21,7 +21,7 @@ To compile the tool from source, you will require a source build of Unreal Engin
 
 We provide you an Unreal project that already contains the different assets necessary to animate avatars properly using the **ZED Live Link** skeleton data.
 
-You will be able to use directly this project by hitting play while the **ZED Live Link sample** is running and see a default avatar animate. We are showing how to add your own models here: [Animate New Avatar](/livelink/animate-new-avatar/).
+You will be able to use directly this project by hitting play while the **ZED Live Link sample** is running and see a default avatar animate. We are showing how to add your own models here: [Animate New Avatar](https://www.stereolabs.com/docs/livelink/animate-new-avatar/).
 
 In this tutorial, you'll learn how to use our **ZED Live Link sample**, connect it to our Unreal Project and animate a default avatar with the **Live Link** skeleton data. You must follow these steps:
 
@@ -79,7 +79,7 @@ At this point, you must run the ZED Live Link executable. It will call the ZED S
 
 A pre-built `ZEDLiveLink` sender for the current SDK version is located in `zed-livelink/zed-livelink-mono/Releases/your system/`.
 
-To learn how to build the ZED Live link sample yourself, take a look at our [Build Zed Live Link](/livelink/building-the-plugin/) documentation page.
+To learn how to build the ZED Live link sample yourself, take a look at our [Build Zed Live Link](https://www.stereolabs.com/docs/livelink/building-the-plugin/) documentation page.
 
 - Open a terminal in the folder containing the ZED Live Link executable, and run
 
