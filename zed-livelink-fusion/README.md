@@ -24,7 +24,7 @@ To compile the tool from source, you will require a source build of Unreal Engin
 
 We provide you an Unreal project that already contains the different assets necessary to animate avatars properly using the **ZED Live Link** skeleton data.
 
-You will be able to use directly this project by hitting play while the **ZED Live Link sample** is running and see a default avatar animate. We are showing how to add your own models here: [Animate New Avatar](/livelink/animate-new-avatar/).
+You will be able to use directly this project by hitting play while the **ZED Live Link sample** is running and see a default avatar animate. We are showing how to add your own models here: [Animate New Avatar](https://www.stereolabs.com/docs/livelink/animate-new-avatar/).
 
 In this tutorial, you'll learn how to use our **ZED Live Link sample**, connect it to our Unreal Project and animate a default avatar with the **Live Link** skeleton data. You must follow these steps:
 
@@ -84,7 +84,7 @@ At this point, you must run the ZED Live Link executable. It will call the ZED S
 
 A pre-built `ZEDLiveLinkFusion` sender for the current SDK version is located in `zed-livelink/zed-livelink-fusion/Releases/your system/`.
 
-To learn how to build the ZED Live link sample yourself, take a look at our [Build Zed Live Link](/livelink/building-the-plugin/) documentation page.
+To learn how to build the ZED Live link sample yourself, take a look at our [Build Zed Live Link](https://www.stereolabs.com/docs/livelink/building-the-plugin/) documentation page.
 
 - Open a terminal in the folder containing the ZED Live Link executable, and run
 
@@ -97,8 +97,8 @@ $ ./ZEDLiveLinkFusion
 The ZED Live link sample requires a configuration file (Json format) to run. This file contains all the parameters from the ZED SDK that can be modified in this sample.
 By default, the sample will try to open a json called "ZEDFusionLiveLinkConfig.json" located next to this executable.
 
-The Fusion API requires a calibration file to be able to fuse the data from multiple camera.
-This file cam be generated using the ZED 360 tool available with the ZED SDK. Once your calibration file is ready, 
+The Fusion API requires a calibration file to be able to fuse the data from multiple cameras.
+This file can be generated using the ZED 360 tool available with the ZED SDK. Once your calibration file is ready, 
 in the ZEDFusionLivelink.json file, set the value of **json_config_filename** to the path to this calibration file.
 
 The configuration file looks like this :
@@ -135,7 +135,7 @@ The configuration file looks like this :
 }
  ```
 
-You can get more information about the different parameters role by looking at the [API documentation](https://www.stereolabs.com/docs/api/).
+You can get more information about the different parameters' roles by looking at the [API documentation](https://www.stereolabs.com/docs/api/).
 
 By default, the Live Link sample will try to open a json file called **ZEDFusionLiveLinkConfig.json** next to the executable.
 
