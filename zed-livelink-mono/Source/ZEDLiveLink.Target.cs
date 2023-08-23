@@ -101,6 +101,7 @@ public class ZEDLiveLinkTarget : TargetRules
 			PostBuildSteps.Add(string.Format("echo Copying {0} to {1}...", EngineBinariesDir, PostBuildBinDir));
 			PostBuildSteps.Add(string.Format("xcopy /y /i /v \"{0}\\{1}.*\" \"{2}\" 1>nul", EngineBinariesDir, OutputName, PostBuildBinDir));
 			PostBuildSteps.Add(string.Format("xcopy /y /i /v \"{0}\\{1}.*\" \"{2}\" 1>nul", EngineBinariesDir, "sl_zed_c", PostBuildBinDir));
+			PostBuildSteps.Add(string.Format("xcopy /y /i /v \"{0}\\{1}.*\" \"{2}\" 1>nul", EngineBinariesDir, "zed_opencv", PostBuildBinDir));
 
 			string ConfigFilePath = Path.Combine(Path.GetDirectoryName(RulesCompiler.GetFileNameFromType(this.GetType())), "..");
 			PostBuildSteps.Add(string.Format("echo Copying {0} to {1}...", ConfigFilePath, PostBuildBinDir));

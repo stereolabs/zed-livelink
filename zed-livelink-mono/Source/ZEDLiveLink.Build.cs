@@ -36,13 +36,14 @@ public class ZEDLiveLink : ModuleRules
 			"Projects",
 			"UdpMessaging",
 			"LiveLinkInterface",
-			"LiveLinkMessageBusFramework",
+			"LiveLinkMessageBusFramework"
 		});
 
 		LoadZEDSDK(Target, ZEDSDKPath);
         LoadCUDA(Target, CudaSDKPath);
         LoadWrapper(Target, WrapperPath);
-    }
+		LoadOpenCV(Target, WrapperPath);
+	}
 
     public void LoadZEDSDK(ReadOnlyTargetRules Target, string DirPath)
     {
@@ -153,4 +154,19 @@ public class ZEDLiveLink : ModuleRules
             RuntimeDependencies.Add("$(TargetOutputDir)/ZEDLiveLink/libsl_zed_c.so", Path.Combine(DirPath + "/linux/libsl_zed_c.so"));
         }
     }
+
+	public void LoadOpenCV(ReadOnlyTargetRules Target, string DirPath)
+	{
+		if (Target.Platform == UnrealTargetPlatform.Win64)
+		{
+			if (!Directory.Exists(DirPath))
+			{
+				string Err = string.Format("Wrapper missing");
+				System.Console.WriteLine(Err);
+				throw new BuildException(Err);
+			}
+
+			RuntimeDependencies.Add("$(TargetOutputDir)/zed_opencv.dll", Path.Combine(DirPath + "/win64/zed_opencv.dll"));
+		}
+	}
 }

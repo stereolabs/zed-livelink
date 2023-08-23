@@ -29,6 +29,7 @@ typedef int(*__Grab)(int id, SL_RuntimeParameters& rt_params);
 typedef SL_CalibrationParameters* (*__CalibParams)(int id, bool raw_params);
 typedef void(*__SetSVOPosition)(int id, int frame_nb);
 typedef void(*__StartPublishing)(int id, const char* json_config_filename);
+typedef int(*__RetrieveImage)(int id, void* ptr, sl::VIEW type, int mem, int width, int height);
 
 
 class ZEDCamera {
@@ -51,6 +52,7 @@ public:
 	SL_CalibrationParameters* GetCalibrationParameters(bool raw_params = false);
 	void SetSVOPosition(int frame_number);
 	void StartPublishing(std::string jsonConfigFilename);
+	sl::ERROR_CODE RetrieveImage(sl::Mat& img, sl::VIEW type, sl::MEM mem, sl::Resolution resolution = sl::Resolution(0, 0));
 
 private:
 	void* v_dllHandle;
@@ -68,6 +70,7 @@ private:
 	__CalibParams m_funcGetCalibParams;
 	__SetSVOPosition m_funcSetSVOPosition;
 	__StartPublishing m_funcStartPublishing;
+	__RetrieveImage m_funcRetrieveImage;
 
 	int camera_id;
 
@@ -85,6 +88,7 @@ private:
 	bool ImportMethod_GetCalibParams();
 	bool ImportMethod_SetSVOPosition();
 	bool ImportMethod_StartPublishing();
+	bool ImportMethod_RetrieveImage();
 
 	bool LoadDll(FString DLLName);
 	void UnloadDll();

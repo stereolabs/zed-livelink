@@ -32,6 +32,7 @@
 #include "ZEDCamera.h"
 #include "ZEDStructs.h"
 #include "Utils/Util.h"
+#include "ArucoDetector.hpp"
 
 IMPLEMENT_APPLICATION(ZEDLiveLinkPlugin, "ZEDLiveLink");
 
@@ -62,6 +63,8 @@ struct StreamedCameraData
 void LibInit();
 void parseArgs(int argc, char** argv, SL_InitParameters& init_parameters, string& pathSVO, string& ip, int& port);
 void UpdateCameraStaticData(FName SubjectName);
+void UpdateArucoStaticData(FName SubjectName);
+void UpdateArucoFrameData(FName SubjectName, SL_PoseData pose);
 void UpdateCameraFrameData(FName SubjectName, ZEDCamera& camera);
 void UpdateSkeletonStaticData(FName SubjectName);
 void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton);
@@ -72,6 +75,9 @@ StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& objectDa
 
 bool IsConnected = false;
 bool enableBodyTracking = false;
+
+bool enableArucoDetection = true;
+FName ArucoSubjectName = "Aruco";
 
 // Streamed Data
 StreamedCameraData StreamedCamera;
@@ -141,18 +147,30 @@ int main(int argc, char **argv)
 	//// Update static camera data.
 	if (LiveLinkProvider.IsValid()) {
 		UpdateCameraStaticData(StreamedCamera.SubjectName);
+
+		if (enableArucoDetection)
+		{
+			UpdateArucoStaticData(ArucoSubjectName);
+		}
 	}
 
+	ArucoDetector detector;
+	SL_CalibrationParameters calibration_parameters = *StreamedCamera.Cam->GetCalibrationParameters();
+
+	detector.Init(0.135, PREDEFINED_DICTIONARY_NAME::DICT_6X6_100, calibration_parameters.left_cam.fx, calibration_parameters.left_cam.fy, calibration_parameters.left_cam.cx, calibration_parameters.left_cam.cy);
+
+	sl::Mat img(sl::Resolution(calibration_parameters.left_cam.image_size.width, calibration_parameters.left_cam.image_size.height), sl::MAT_TYPE::U8_C4);
 	//// Loop
 	while (true) {
 		//// Display status
-		if (LiveLinkProvider->HasConnection()) {
+		if (LiveLinkProvider->HasConnection()) 
+		{
 			if (!IsConnected) {
 				IsConnected = true;
 				cout << "ZEDLiveLink is connected " << endl;
 				cout << "ZED Camera added : " << TCHAR_TO_UTF8(*StreamedCamera.SubjectName.ToString()) << endl;
 			}
-
+			bool saved = false;
 			// Grab
 			///// Update Streamed data
 			SL_RuntimeParameters rt_params;
@@ -160,6 +178,33 @@ int main(int argc, char **argv)
 			sl::ERROR_CODE err = StreamedCamera.Cam->Grab(rt_params);
 			if (err == sl::ERROR_CODE::SUCCESS) {
 				UpdateCameraFrameData(StreamedCamera.SubjectName, *StreamedCamera.Cam);
+		
+				if (enableArucoDetection) {
+					err = StreamedCamera.Cam->RetrieveImage(img, sl::VIEW::LEFT, sl::MEM::CPU);
+
+					if (err == sl::ERROR_CODE::SUCCESS)
+					{
+						detector.DetectMarkers(img.getWidth(), img.getHeight(), img.getPtr<sl::uchar1>());
+
+						float t_x, t_y, t_z, q_x, q_y, q_z, q_w;
+						bool status = detector.GetPose(t_x, t_y, t_z, q_x, q_y, q_z, q_w);
+
+						if (status)
+						{
+							std::cout << t_x << ", " << t_y << ", " << t_z << std::endl;
+
+							SL_PoseData pose_data;
+							SL_Vector3 position(t_x, t_y, t_z);
+							SL_Quaternion rotation(q_x, q_y, q_z, q_w);
+							
+							pose_data.translation = position;
+							pose_data.rotation = rotation;
+
+							UpdateArucoFrameData(ArucoSubjectName, pose_data);
+						}
+					}
+				}
+
 				if (enableBodyTracking) {
 					e = PopulateSkeletonsData(StreamedCamera.Cam, zed_config);
 					if (e != ERROR_CODE::SUCCESS) {
@@ -418,6 +463,28 @@ void UpdateCameraFrameData(FName SubjectName, ZEDCamera& zed)
 	CameraData.Transform = Pose;
 	double StreamTime = FPlatformTime::Seconds();
 	CameraData.WorldTime = StreamTime;
+	LiveLinkProvider->UpdateSubjectFrameData(SubjectName, MoveTemp(FrameData));
+}
+
+void UpdateArucoStaticData(FName SubjectName)
+{
+	FLiveLinkStaticDataStruct StaticData(FLiveLinkTransformStaticData::StaticStruct());
+	FLiveLinkTransformStaticData& TransformData = *StaticData.Cast<FLiveLinkTransformStaticData>();
+	TransformData.bIsLocationSupported = true;
+	TransformData.bIsRotationSupported = true;
+
+	LiveLinkProvider->UpdateSubjectStaticData(SubjectName, ULiveLinkTransformRole::StaticClass(), MoveTemp(StaticData));
+}
+
+void UpdateArucoFrameData(FName SubjectName, SL_PoseData pose)
+{
+	FLiveLinkFrameDataStruct FrameData(FLiveLinkTransformFrameData::StaticStruct());
+	FLiveLinkTransformFrameData& TransformData = *FrameData.Cast<FLiveLinkTransformFrameData>();
+
+	FTransform Transform = BuildUETransformFromZEDTransform(pose);
+	TransformData.Transform = Transform;
+	double StreamTime = FPlatformTime::Seconds();
+	TransformData.WorldTime = StreamTime;
 	LiveLinkProvider->UpdateSubjectFrameData(SubjectName, MoveTemp(FrameData));
 }
 

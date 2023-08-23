@@ -228,6 +228,24 @@ bool ZEDCamera::ImportMethod_StartPublishing()
 	return false;// Return an error.
 }
 
+
+bool ZEDCamera::ImportMethod_RetrieveImage()
+{
+	if (v_dllHandle != NULL)
+	{
+		m_funcRetrieveImage = NULL;
+		FString procName = "sl_retrieve_image";// Needs to be the exact name of the DLL method.
+		m_funcRetrieveImage = (__RetrieveImage)FPlatformProcess::GetDllExport(v_dllHandle, *procName);
+		if (m_funcRetrieveImage != NULL)
+		{
+			return true;
+		}
+	}
+	return false;// Return an error.
+}
+
+
+
 bool ZEDCamera::LoadDll(FString DLLName)
 {
 	if (FPaths::FileExists(DLLName))
@@ -249,6 +267,7 @@ bool ZEDCamera::LoadDll(FString DLLName)
 			ImportMethod_RetrieveBodies();
 			ImportMethod_SetSVOPosition();
 			ImportMethod_StartPublishing();
+			ImportMethod_RetrieveImage();
 			return true;
 		}
 	}
@@ -392,6 +411,16 @@ void ZEDCamera::StartPublishing(std::string json_config_filename) {
 		return;
 	}
 	m_funcStartPublishing(camera_id, json_config_filename.c_str());
+}
+
+sl::ERROR_CODE ZEDCamera::RetrieveImage(sl::Mat& img, sl::VIEW type, sl::MEM mem, sl::Resolution resolution)
+{
+	if (m_funcRetrieveImage == NULL)
+	{
+		return sl::ERROR_CODE::FAILURE;
+	}
+
+	return (sl::ERROR_CODE)m_funcRetrieveImage(camera_id, (void*)(&img), type, (int)mem - 1, resolution.width, resolution.height);
 }
 
 #endif
