@@ -40,12 +40,11 @@ bool ArucoDetector::getPose(float& t_x, float& t_y, float& t_z, float& q_x, floa
 
         pose.setTranslation(sl::float3(tvecs[0](0), tvecs[0](1), tvecs[0](2)));
         pose.setRotationVector(sl::float3(rvecs[0](0), rvecs[0](1), rvecs[0](2)));
-        pose.inverse();
 
         cv::aruco::drawDetectedMarkers(image_ocv_rgb, corners, ids);
         cv::aruco::drawAxis(image_ocv_rgb, camera_matrix, dist_coeffs, rvecs[0], tvecs[0], actual_marker_size_meters_ * 0.5f);
-        cv::imshow("test", image_ocv_rgb);
-        cv::waitKey(10);
+        //cv::imshow("test", image_ocv_rgb);
+        //cv::waitKey(10);
 
         sl::convertCoordinateSystem(pose, sl::COORDINATE_SYSTEM::IMAGE, sl::COORDINATE_SYSTEM::LEFT_HANDED_Z_UP);
 
