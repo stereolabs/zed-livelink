@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\aruco.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\aruco_detector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\include\aruco.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\include\aruco_detector.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\include\interface.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{E5BADB96-CADE-3F46-BC10-73F5DB23D132}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{ECCED5B4-A3AB-37F0-B157-41502A55F583}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

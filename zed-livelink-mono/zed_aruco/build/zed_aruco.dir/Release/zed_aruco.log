@@ -1,0 +1,109 @@
+﻿  Building Custom Rule E:/UnrealEngines/UnrealEngine/Engine/Source/Programs/zed-livelink/zed-livelink-mono/zed_aruco/CMakeLists.txt
+cl : command line  warning D9002: ignoring unknown option '-std=c++11'
+cl : command line  warning D9002: ignoring unknown option '-O3'
+  aruco.cpp
+  aruco_detector.cpp
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(197,16): warning C4251: 'sl::InitParameters::sdk_verbose_log_file': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::InitParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(249,19): warning C4251: 'sl::InitParameters::input': class 'sl::InputType' needs to have dll-interface to be used by clients of struct 'sl::InitParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(673): message : see declaration of 'sl::InputType'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(264,16): warning C4251: 'sl::InitParameters::optional_settings_path': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::InitParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(273,16): warning C4251: 'sl::InitParameters::optional_opencv_calibration_file': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::InitParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(524,19): warning C4251: 'sl::PositionalTrackingParameters::initial_world_transform': class 'sl::Transform' needs to have dll-interface to be used by clients of struct 'sl::PositionalTrackingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/Core.hpp(832): message : see declaration of 'sl::Transform'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(561,16): warning C4251: 'sl::PositionalTrackingParameters::area_file_path': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::PositionalTrackingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(764,31): warning C4251: 'sl::SpatialMappingParameters::allowed_resolution': struct 'std::pair<float,float>' needs to have dll-interface to be used by clients of struct 'sl::SpatialMappingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(656): message : see declaration of 'std::pair<float,float>'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(779,31): warning C4251: 'sl::SpatialMappingParameters::allowed_range': struct 'std::pair<float,float>' needs to have dll-interface to be used by clients of struct 'sl::SpatialMappingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(656): message : see declaration of 'std::pair<float,float>'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(965,16): warning C4251: 'sl::RecordingParameters::video_filename': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::RecordingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1217,35): warning C4251: 'sl::ObjectDetectionRuntimeParameters::object_class_filter': class 'std::vector<sl::OBJECT_CLASS,std::allocator<sl::OBJECT_CLASS>>' needs to have dll-interface to be used by clients of struct 'sl::ObjectDetectionRuntimeParameters'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1217): message : see declaration of 'std::vector<sl::OBJECT_CLASS,std::allocator<sl::OBJECT_CLASS>>'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1223,39): warning C4251: 'sl::ObjectDetectionRuntimeParameters::object_class_detection_confidence_threshold': class 'std::map<sl::OBJECT_CLASS,float,std::less<sl::OBJECT_CLASS>,std::allocator<std::pair<const sl::OBJECT_CLASS,float>>>' needs to have dll-interface to be used by clients of struct 'sl::ObjectDetectionRuntimeParameters'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1223): message : see declaration of 'std::map<sl::OBJECT_CLASS,float,std::less<sl::OBJECT_CLASS>,std::allocator<std::pair<const sl::OBJECT_CLASS,float>>>'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1430,38): warning C4305: 'initializing': truncation from 'double' to 'float'
+E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\aruco_detector.cpp(47,69): warning C4244: 'argument': conversion from '_Tp' to 'const T', possible loss of data
+          with
+          [
+              _Tp=double
+          ]
+          and
+          [
+              T=float
+          ]
+E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\aruco_detector.cpp(47,56): warning C4244: 'argument': conversion from '_Tp' to 'const T', possible loss of data
+          with
+          [
+              _Tp=double
+          ]
+          and
+          [
+              T=float
+          ]
+E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\aruco_detector.cpp(47,43): warning C4244: 'argument': conversion from '_Tp' to 'const T', possible loss of data
+          with
+          [
+              _Tp=double
+          ]
+          and
+          [
+              T=float
+          ]
+E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\aruco_detector.cpp(48,72): warning C4244: 'argument': conversion from '_Tp' to 'const T', possible loss of data
+          with
+          [
+              _Tp=double
+          ]
+          and
+          [
+              T=float
+          ]
+E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\aruco_detector.cpp(48,59): warning C4244: 'argument': conversion from '_Tp' to 'const T', possible loss of data
+          with
+          [
+              _Tp=double
+          ]
+          and
+          [
+              T=float
+          ]
+E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\src\aruco_detector.cpp(48,46): warning C4244: 'argument': conversion from '_Tp' to 'const T', possible loss of data
+          with
+          [
+              _Tp=double
+          ]
+          and
+          [
+              T=float
+          ]
+  interface.cpp
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(197,16): warning C4251: 'sl::InitParameters::sdk_verbose_log_file': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::InitParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(249,19): warning C4251: 'sl::InitParameters::input': class 'sl::InputType' needs to have dll-interface to be used by clients of struct 'sl::InitParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(673): message : see declaration of 'sl::InputType'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(264,16): warning C4251: 'sl::InitParameters::optional_settings_path': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::InitParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(273,16): warning C4251: 'sl::InitParameters::optional_opencv_calibration_file': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::InitParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(524,19): warning C4251: 'sl::PositionalTrackingParameters::initial_world_transform': class 'sl::Transform' needs to have dll-interface to be used by clients of struct 'sl::PositionalTrackingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/Core.hpp(832): message : see declaration of 'sl::Transform'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(561,16): warning C4251: 'sl::PositionalTrackingParameters::area_file_path': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::PositionalTrackingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(764,31): warning C4251: 'sl::SpatialMappingParameters::allowed_resolution': struct 'std::pair<float,float>' needs to have dll-interface to be used by clients of struct 'sl::SpatialMappingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(656): message : see declaration of 'std::pair<float,float>'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(779,31): warning C4251: 'sl::SpatialMappingParameters::allowed_range': struct 'std::pair<float,float>' needs to have dll-interface to be used by clients of struct 'sl::SpatialMappingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(656): message : see declaration of 'std::pair<float,float>'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(965,16): warning C4251: 'sl::RecordingParameters::video_filename': class 'sl::String' needs to have dll-interface to be used by clients of struct 'sl::RecordingParameters'
+C:\Program Files (x86)\ZED SDK\include\sl_core/utils/types.hpp(145): message : see declaration of 'sl::String'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1217,35): warning C4251: 'sl::ObjectDetectionRuntimeParameters::object_class_filter': class 'std::vector<sl::OBJECT_CLASS,std::allocator<sl::OBJECT_CLASS>>' needs to have dll-interface to be used by clients of struct 'sl::ObjectDetectionRuntimeParameters'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1217): message : see declaration of 'std::vector<sl::OBJECT_CLASS,std::allocator<sl::OBJECT_CLASS>>'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1223,39): warning C4251: 'sl::ObjectDetectionRuntimeParameters::object_class_detection_confidence_threshold': class 'std::map<sl::OBJECT_CLASS,float,std::less<sl::OBJECT_CLASS>,std::allocator<std::pair<const sl::OBJECT_CLASS,float>>>' needs to have dll-interface to be used by clients of struct 'sl::ObjectDetectionRuntimeParameters'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1223): message : see declaration of 'std::map<sl::OBJECT_CLASS,float,std::less<sl::OBJECT_CLASS>,std::allocator<std::pair<const sl::OBJECT_CLASS,float>>>'
+C:\Program Files (x86)\ZED SDK\include\sl/Camera.hpp(1430,38): warning C4305: 'initializing': truncation from 'double' to 'float'
+  Generating Code...
+     Creating library E:/UnrealEngines/UnrealEngine/Engine/Source/Programs/zed-livelink/zed-livelink-mono/zed_aruco/build/Release/zed_aruco.lib and object E:/UnrealEngines/UnrealEngine/Engine/Source/Programs/zed-livelink/zed-livelink-mono/zed_aruco/build/Release/zed_aruco.exp
+  zed_aruco.vcxproj -> E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\build\Release\zed_aruco.dll

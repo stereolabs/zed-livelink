@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\build\x64\Debug\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\build\Debug\zed_aruco.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\build\x64\Debug\ALL_BUILD</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>E:\UnrealEngines\UnrealEngine\Engine\Source\Programs\zed-livelink\zed-livelink-mono\zed_aruco\build\x64\Debug\INSTALL</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>
