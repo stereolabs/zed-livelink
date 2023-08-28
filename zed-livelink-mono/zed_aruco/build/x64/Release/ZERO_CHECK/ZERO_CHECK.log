@@ -1,9 +1,0 @@
-﻿  Checking Build System
-  CMake is re-running because E:/UnrealEngines/UnrealEngine/Engine/Source/Programs/zed-livelink/zed-livelink-mono/zed_aruco/build/CMakeFiles/generate.stamp is out-of-date.
-    the file 'E:/UnrealEngines/UnrealEngine/Engine/Source/Programs/zed-livelink/zed-livelink-mono/zed_aruco/CMakeLists.txt'
-    is newer than 'E:/UnrealEngines/UnrealEngine/Engine/Source/Programs/zed-livelink/zed-livelink-mono/zed_aruco/build/CMakeFiles/generate.stamp.depend'
-    result='-1'
-  -- Selecting Windows SDK version 10.0.22621.0 to target Windows 10.0.19045.
-  -- Configuring done
-  -- Generating done
-  -- Build files have been written to: E:/UnrealEngines/UnrealEngine/Engine/Source/Programs/zed-livelink/zed-livelink-mono/zed_aruco/build
