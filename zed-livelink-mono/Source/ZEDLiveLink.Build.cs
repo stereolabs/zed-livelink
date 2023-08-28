@@ -150,8 +150,10 @@ public class ZEDLiveLink : ModuleRules
             }
 		
 		    PublicAdditionalLibraries.Add(DirPath + "/linux/libsl_zed_c.so");
+            PublicAdditionalLibraries.Add(DirPath + "/linux/libzed_aruco.so");
 
             RuntimeDependencies.Add("$(TargetOutputDir)/ZEDLiveLink/libsl_zed_c.so", Path.Combine(DirPath + "/linux/libsl_zed_c.so"));
+            RuntimeDependencies.Add("$(TargetOutputDir)/ZEDLiveLink/libzed_aruco.so", Path.Combine(DirPath + "/linux/libzed_aruco.so"));
         }
     }
 

@@ -27,7 +27,7 @@
   },
   "ArucoDetection":
   {
-	  "enable_detection": true,
+	  "enable_detection": false,
 	  "marker_size_meter": 0.15,
 	  "dictionary": "6x6_100"
   }

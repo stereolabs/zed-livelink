@@ -1,9 +1,6 @@
 #include "interface.hpp"
 #include "aruco_detector.hpp"
 
-#define INTERFACE_API __declspec(dllexport)
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif

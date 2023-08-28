@@ -6,6 +6,11 @@
 ArucoDetector::ArucoDetector()
 {
 	FString name_dll = "zed_aruco.dll"; 
+#if PLATFORM_LINUX
+	name_dll = "libzed_aruco.so";
+#elif PLATFORM_WINDOWS
+	name_dll = "zed_aruco.dll";
+#endif 
 	LoadDll(name_dll);
 }
 

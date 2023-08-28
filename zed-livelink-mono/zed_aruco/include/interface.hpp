@@ -3,7 +3,11 @@
 
 #include "aruco.hpp"
 
+#ifdef _WIN32
 #define INTERFACE_API __declspec(dllexport)
+#else
+#define INTERFACE_API
+#endif
 
 
 #ifdef __cplusplus

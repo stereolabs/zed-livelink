@@ -13,7 +13,6 @@
      <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink" />
      <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test.debug" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink.debug" />
      <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test.sym" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink.sym" />
-     <Copy From="$(LocalBinaryDir)/ZEDLiveLink-Linux-Test.sym" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLink.sym"/>
      <Copy From="$(LocalSourceDir)/ZEDLiveLinkConfig.json" To="$(LocalBinaryDir)/ZEDLiveLink/ZEDLiveLinkConfig.json"/>
     </Node>
   </Agent>

@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 						if (status)
 						{
 							//std::cout << aruco_pose.getTranslation().x << ", " << aruco_pose.getTranslation().y << ", " << aruco_pose.getTranslation().z << std::endl;	
-							std::cout << aruco_pose.getEulerAngles(false) << std::endl;
+							//std::cout << aruco_pose.getEulerAngles(false) << std::endl;
 							UpdateArucoFrameData(ArucoSubjectName, aruco_pose);
 						}
 					}
