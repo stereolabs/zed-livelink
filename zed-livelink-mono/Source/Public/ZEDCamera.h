@@ -47,6 +47,7 @@ public:
 	sl::ERROR_CODE EnableBodyTracking(SL_BodyTrackingParameters& params);
 	void DisableBodyTracking(unsigned int instanceId = 0, bool forceDisableAllInstances = false);
 	sl::POSITIONAL_TRACKING_STATE GetPosition(SL_PoseData& poseData, sl::REFERENCE_FRAME referenceFrame);
+	sl::POSITIONAL_TRACKING_STATE GetPosition(sl::Transform& pose, sl::REFERENCE_FRAME reference_frame);
 	int GetSerialNumber();
 	sl::ERROR_CODE RetrieveBodies(SL_BodyTrackingRuntimeParameters& bt_params, SL_Bodies& bodies, unsigned int instanceId = 0);
 	SL_CalibrationParameters* GetCalibrationParameters(bool raw_params = false);

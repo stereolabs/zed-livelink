@@ -41,42 +41,21 @@ using namespace std;
 
 static TSharedPtr<ILiveLinkProvider> LiveLinkProvider;
 
-struct StreamedSkeletonData
-{
-	FName SubjectName;
-	double Timestamp;
-	TArray<FTransform> Skeleton;
-
-	StreamedSkeletonData() {}
-	StreamedSkeletonData(FName inSubjectName) : SubjectName(inSubjectName) {}
-};
-
-struct StreamedCameraData
-{
-	FName SubjectName;
-	ZEDCamera* Cam;
-	StreamedCameraData() {}
-	StreamedCameraData(FName inSubjectName, ZEDCamera* InCam) : SubjectName(inSubjectName), Cam(InCam) {}
-};
-
 
 void LibInit();
 void parseArgs(int argc, char** argv, SL_InitParameters& init_parameters, string& pathSVO, string& ip, int& port);
 void UpdateCameraStaticData(FName SubjectName);
 void UpdateArucoStaticData(FName SubjectName);
-void UpdateArucoFrameData(FName SubjectName, SL_PoseData pose);
-void UpdateCameraFrameData(FName SubjectName, ZEDCamera& camera);
+void UpdateArucoFrameData(FName SubjectName, sl::Transform pose);
+void UpdateCameraFrameData(FName SubjectName, ZEDCamera& camera, sl::Transform pose);
 void UpdateSkeletonStaticData(FName SubjectName);
 void UpdateAnimationFrameData(StreamedSkeletonData StreamedSkeleton);
 ERROR_CODE PopulateSkeletonsData(ZEDCamera* cam, ZEDConfig& config);
 ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig& config);
-FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose);
-StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& objectData, double timestamp);
 
 bool IsConnected = false;
 bool enableBodyTracking = false;
 
-bool enableArucoDetection = true;
 FName ArucoSubjectName = "Aruco";
 
 // Streamed Data
@@ -148,18 +127,23 @@ int main(int argc, char **argv)
 	if (LiveLinkProvider.IsValid()) {
 		UpdateCameraStaticData(StreamedCamera.SubjectName);
 
-		if (enableArucoDetection)
+		if (zed_config.enable_aruco_detection)
 		{
 			UpdateArucoStaticData(ArucoSubjectName);
 		}
 	}
 
+	sl::Transform cam_pose;
+	sl::Mat img;
 	ArucoDetector detector;
-	SL_CalibrationParameters calibration_parameters = *StreamedCamera.Cam->GetCalibrationParameters();
+	if (zed_config.enable_aruco_detection) 
+	{
+		SL_CalibrationParameters calibration_parameters = *StreamedCamera.Cam->GetCalibrationParameters();
+		detector.Init(zed_config.marker_size_meter, zed_config.dictionary, calibration_parameters.left_cam.fx, calibration_parameters.left_cam.fy, calibration_parameters.left_cam.cx, calibration_parameters.left_cam.cy, false);
 
-	detector.Init(0.135, PREDEFINED_DICTIONARY_NAME::DICT_6X6_100, calibration_parameters.left_cam.fx, calibration_parameters.left_cam.fy, calibration_parameters.left_cam.cx, calibration_parameters.left_cam.cy);
+		img = sl::Mat(sl::Resolution(calibration_parameters.left_cam.image_size.width, calibration_parameters.left_cam.image_size.height), sl::MAT_TYPE::U8_C4);
+	}
 
-	sl::Mat img(sl::Resolution(calibration_parameters.left_cam.image_size.width, calibration_parameters.left_cam.image_size.height), sl::MAT_TYPE::U8_C4);
 	//// Loop
 	while (true) {
 		//// Display status
@@ -177,30 +161,25 @@ int main(int argc, char **argv)
 			rt_params.reference_frame = sl::REFERENCE_FRAME::WORLD;
 			sl::ERROR_CODE err = StreamedCamera.Cam->Grab(rt_params);
 			if (err == sl::ERROR_CODE::SUCCESS) {
-				UpdateCameraFrameData(StreamedCamera.SubjectName, *StreamedCamera.Cam);
+				
+				StreamedCamera.Cam->GetPosition(cam_pose, sl::REFERENCE_FRAME::WORLD);
+				UpdateCameraFrameData(StreamedCamera.SubjectName, *StreamedCamera.Cam, cam_pose);
 		
-				if (enableArucoDetection) {
+				if (zed_config.enable_aruco_detection) {
 					err = StreamedCamera.Cam->RetrieveImage(img, sl::VIEW::LEFT, sl::MEM::CPU);
 
 					if (err == sl::ERROR_CODE::SUCCESS)
 					{
 						detector.DetectMarkers(img.getWidth(), img.getHeight(), img.getPtr<sl::uchar1>());
-
-						float t_x, t_y, t_z, q_x, q_y, q_z, q_w;
-						bool status = detector.GetPose(t_x, t_y, t_z, q_x, q_y, q_z, q_w);
+				
+						sl::Transform aruco_pose;
+						bool status = detector.GetPose(aruco_pose);
 
 						if (status)
 						{
-							std::cout << t_x << ", " << t_y << ", " << t_z << std::endl;
-
-							SL_PoseData pose_data;
-							SL_Vector3 position(t_x, t_y, t_z);
-							SL_Quaternion rotation(q_x, q_y, q_z, q_w);
-							
-							pose_data.translation = position;
-							pose_data.rotation = rotation;
-
-							UpdateArucoFrameData(ArucoSubjectName, pose_data);
+							//std::cout << aruco_pose.getTranslation().x << ", " << aruco_pose.getTranslation().y << ", " << aruco_pose.getTranslation().z << std::endl;	
+							std::cout << aruco_pose.getEulerAngles(false) << std::endl;
+							UpdateArucoFrameData(ArucoSubjectName, aruco_pose);
 						}
 					}
 				}
@@ -250,18 +229,6 @@ void LibInit()
 	FModuleManager::Get().LoadModule(TEXT("UdpMessaging"));
 }
 
-//// Convert ZED transform to UE transform
-FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose)
-{
-	FTransform UETransform;
-	SL_Vector3 zedTranslation = pose.translation;
-	FVector UETranslation = FVector(zedTranslation.x, zedTranslation.y, zedTranslation.z);
-	UETransform.SetTranslation(UETranslation);
-	UETransform.SetRotation(FQuat(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w));
-	UETransform.SetScale3D(FVector(1, 1, 1));
-	return UETransform;
-}
-
 ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig& config)
 {
 	string pathSVO = config.svo_path;
@@ -297,6 +264,7 @@ ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig& config)
 	tracking_param.set_floor_as_origin = true;
 	tracking_param.enable_pose_smoothing = config.enable_pose_smoothing;
 	tracking_param.enable_area_memory = config.enable_area_memory;
+	tracking_param.mode = config.positional_tracking_mode;
 	err = zed->EnablePositionalTracking(tracking_param);
 	if (err != ERROR_CODE::SUCCESS)
 	{
@@ -322,72 +290,6 @@ ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig& config)
 		}
 	}
 	return err;
-}
-
-StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData, double timestamp)
-{
-	StreamedSkeletonData SkeletonsData = StreamedSkeletonData(FName(FString::FromInt(bodyData.id)));
-	SkeletonsData.Timestamp = timestamp;
-	TMap<FString, FTransform> rigBoneTarget;
-	sl::float3 bodyPosition = bodyData.keypoint[0];
-	sl::float4 bodyRotation = bodyData.global_root_orientation;
-
-	for (int i = 0; i < targetBone.Num(); i++)
-	{
-		rigBoneTarget.Add(targetBone[i], FTransform::Identity);
-	}
-	
-	FVector position = FVector(bodyPosition.x, bodyPosition.y, bodyPosition.z);
-	FQuat global_rotation = FQuat(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w);
-
-	if (position.ContainsNaN())
-	{
-		position = FVector::ZeroVector;
-	}
-
-	rigBoneTarget["PELVIS"].SetLocation(position);
-	rigBoneTarget["PELVIS"].SetRotation(global_rotation.GetNormalized());
-
-
-	for (int i = 1; i < targetBone.Num() / 2; i++)
-	{
-		sl::float3 localTranslation = bodyData.local_position_per_joint[i];
-		sl::float4 localRotation = bodyData.local_orientation_per_joint[i];
-		sl::float3 worldTranslation = bodyData.keypoint[i];
-
-		position = FVector(worldTranslation.x, worldTranslation.y, worldTranslation.z);
-		if (position.ContainsNaN())
-		{
-			position = FVector::ZeroVector;
-		}
-
-		FQuat jointRotation = FQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w).GetNormalized();
-
-		if (jointRotation.ContainsNaN())
-		{
-			position = FVector::ZeroVector;
-		}
-
-		rigBoneTarget[targetBone[i]].SetLocation(position);
-		rigBoneTarget[targetBone[i]].SetRotation(jointRotation);
-
-	}
-
-	TArray<FTransform> transforms;
-	for (int i = 0; i < targetBone.Num() / 2; i++)
-	{
-		transforms.Push(rigBoneTarget[targetBone[i]]);
-	}
-
-	// Add keypoints confidence at the end of the Array of transforms.
-	for (int i = 0; i < targetBone.Num() / 2; i++)
-	{
-		FTransform kp_conf = FTransform::Identity;
-		kp_conf.SetLocation(FVector(bodyData.keypoint_confidence[i], bodyData.keypoint_confidence[i], bodyData.keypoint_confidence[i]));
-		transforms.Push(kp_conf);
-	}
-	SkeletonsData.Skeleton = transforms;
-	return SkeletonsData;
 }
 
 ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed, ZEDConfig& config)
@@ -417,12 +319,12 @@ ERROR_CODE PopulateSkeletonsData(ZEDCamera* zed, ZEDConfig& config)
 				if (!StreamedSkeletons.Contains(bodyData.id))  // If it's a new ID
 				{
 					UpdateSkeletonStaticData(FName(FString::FromInt(bodyData.id)));
-					StreamedSkeletonData data = BuildSkeletonsTransformFromZEDObjects(bodyData, bodies.timestamp);
+					StreamedSkeletonData data = BuildSkeletonsTransformFromZEDObjects(bodyData, targetBone, bodies.timestamp);
 					StreamedSkeletons.Add(bodyData.id, data);
 				}
 				else
 				{
-					StreamedSkeletons[bodyData.id] = BuildSkeletonsTransformFromZEDObjects(bodyData, bodies.timestamp);
+					StreamedSkeletons[bodyData.id] = BuildSkeletonsTransformFromZEDObjects(bodyData, targetBone, bodies.timestamp);
 					remainingKeyList.Remove(bodyData.id);
 				}
 			}
@@ -450,12 +352,10 @@ void UpdateCameraStaticData(FName SubjectName)
 }
 
 //// Update Camera Frame data
-void UpdateCameraFrameData(FName SubjectName, ZEDCamera& zed)
+void UpdateCameraFrameData(FName SubjectName, ZEDCamera& zed, sl::Transform pose)
 {
 	FLiveLinkFrameDataStruct FrameData(FLiveLinkCameraFrameData::StaticStruct());
 	FLiveLinkCameraFrameData& CameraData = *FrameData.Cast<FLiveLinkCameraFrameData>();
-	SL_PoseData pose;
-	zed.GetPosition(pose, sl::REFERENCE_FRAME::WORLD);
 	FTransform Pose = BuildUETransformFromZEDTransform(pose);
 	CameraData.AspectRatio = 16. / 9;
 	CameraData.FieldOfView = zed.GetCalibrationParameters(false)->left_cam.h_fov;
@@ -476,7 +376,7 @@ void UpdateArucoStaticData(FName SubjectName)
 	LiveLinkProvider->UpdateSubjectStaticData(SubjectName, ULiveLinkTransformRole::StaticClass(), MoveTemp(StaticData));
 }
 
-void UpdateArucoFrameData(FName SubjectName, SL_PoseData pose)
+void UpdateArucoFrameData(FName SubjectName, sl::Transform pose)
 {
 	FLiveLinkFrameDataStruct FrameData(FLiveLinkTransformFrameData::StaticStruct());
 	FLiveLinkTransformFrameData& TransformData = *FrameData.Cast<FLiveLinkTransformFrameData>();

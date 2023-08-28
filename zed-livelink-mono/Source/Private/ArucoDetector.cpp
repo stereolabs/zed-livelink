@@ -5,7 +5,7 @@
 
 ArucoDetector::ArucoDetector()
 {
-	FString name_dll = "zed_opencv.dll"; 
+	FString name_dll = "zed_aruco.dll"; 
 	LoadDll(name_dll);
 }
 
@@ -82,13 +82,13 @@ void ArucoDetector::UnloadDll() {
 	v_dllHandle = NULL;
 }
 
-void ArucoDetector::Init(float actual_marker_size_meters, PREDEFINED_DICTIONARY_NAME dictionary_name, float fx, float fy, float cx, float cy)
+void ArucoDetector::Init(float actual_marker_size_meters, PREDEFINED_DICTIONARY_NAME dictionary_name, float fx, float fy, float cx, float cy, bool display_image)
 {
 	if (m_func_InitArucoDetector == NULL)
 	{
 		return;
 	}
-	m_func_InitArucoDetector(actual_marker_size_meters, dictionary_name, fx, fy, cx, cy);
+	m_func_InitArucoDetector(actual_marker_size_meters, dictionary_name, fx, fy, cx, cy, display_image);
 }
 
 void ArucoDetector::DetectMarkers(int width, int height, unsigned char* img_ptr)
@@ -100,13 +100,19 @@ void ArucoDetector::DetectMarkers(int width, int height, unsigned char* img_ptr)
 	m_func_DetectMarkers(width, height, img_ptr);
 }
 
-bool ArucoDetector::GetPose(float& t_x, float& t_y, float& t_z, float& q_x, float& q_y, float& q_z, float& q_w)
+bool ArucoDetector::GetPose(sl::Transform& pose)
 {
 	if (m_func_DetectMarkers == NULL)
 	{
 		return false;
 	}
-	return m_func_GetArucoPose(t_x, t_y, t_z, q_x, q_y, q_z, q_w);
+
+	float t_x, t_y, t_z, q_x, q_y, q_z, q_w;
+	bool res = m_func_GetArucoPose(t_x, t_y, t_z, q_x, q_y, q_z, q_w);
+
+	pose.setTranslation(sl::float3(t_x, t_y, t_z));
+	pose.setOrientation(sl::float4(q_x, q_y, q_z, q_w));
+	return res;
 }
 
 #endif

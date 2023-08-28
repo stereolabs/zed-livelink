@@ -166,7 +166,7 @@ public class ZEDLiveLink : ModuleRules
 				throw new BuildException(Err);
 			}
 
-			RuntimeDependencies.Add("$(TargetOutputDir)/zed_opencv.dll", Path.Combine(DirPath + "/win64/zed_opencv.dll"));
+			RuntimeDependencies.Add("$(TargetOutputDir)/zed_aruco.dll", Path.Combine(DirPath + "/win64/zed_aruco.dll"));
 		}
 	}
 }

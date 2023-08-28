@@ -6,6 +6,117 @@
 
 #include <sl/Camera.hpp>
 
+struct StreamedSkeletonData
+{
+	FName SubjectName = "";
+	double Timestamp = 0.;
+	TArray<FTransform> Skeleton;
+
+	StreamedSkeletonData() {}
+	StreamedSkeletonData(FName inSubjectName) : SubjectName(inSubjectName) {}
+};
+
+struct StreamedCameraData
+{
+	FName SubjectName = "";
+	ZEDCamera* Cam = nullptr;
+	StreamedCameraData() {}
+	StreamedCameraData(FName inSubjectName, ZEDCamera* InCam) : SubjectName(inSubjectName), Cam(InCam) {}
+};
+
+//// Convert ZED transform to UE transform
+FTransform BuildUETransformFromZEDTransform(SL_PoseData& pose)
+{
+	FTransform UETransform;
+	SL_Vector3 zedTranslation = pose.translation;
+	FVector UETranslation = FVector(zedTranslation.x, zedTranslation.y, zedTranslation.z);
+	UETransform.SetTranslation(UETranslation);
+	UETransform.SetRotation(FQuat(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w));
+	UETransform.SetScale3D(FVector(1, 1, 1));
+	return UETransform;
+}
+
+FTransform BuildUETransformFromZEDTransform(sl::Transform& pose)
+{
+	FTransform UETransform;
+	sl::float3 zedTranslation = pose.getTranslation();
+	FVector UETranslation = FVector(zedTranslation.x, zedTranslation.y, zedTranslation.z);
+	UETransform.SetTranslation(UETranslation);
+	UETransform.SetRotation(FQuat(pose.getOrientation().x, pose.getOrientation().y, pose.getOrientation().z, pose.getOrientation().w));
+	UETransform.SetScale3D(FVector(1, 1, 1));
+	return UETransform;
+}
+
+StreamedSkeletonData BuildSkeletonsTransformFromZEDObjects(SL_BodyData& bodyData, TArray<FString> targetBone, double timestamp)
+{
+	StreamedSkeletonData SkeletonsData = StreamedSkeletonData(FName(FString::FromInt(bodyData.id)));
+	SkeletonsData.Timestamp = timestamp;
+	TMap<FString, FTransform> rigBoneTarget;
+	sl::float3 bodyPosition = bodyData.keypoint[0];
+	sl::float4 bodyRotation = bodyData.global_root_orientation;
+
+	for (int i = 0; i < targetBone.Num(); i++)
+	{
+		rigBoneTarget.Add(targetBone[i], FTransform::Identity);
+	}
+
+	FVector position = FVector(bodyPosition.x, bodyPosition.y, bodyPosition.z);
+	FQuat global_rotation = FQuat(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w);
+
+	if (position.ContainsNaN())
+	{
+		position = FVector::ZeroVector;
+	}
+
+	rigBoneTarget["PELVIS"].SetLocation(position);
+	rigBoneTarget["PELVIS"].SetRotation(global_rotation.GetNormalized());
+
+
+	for (int i = 1; i < targetBone.Num() / 2; i++)
+	{
+		sl::float3 localTranslation = bodyData.local_position_per_joint[i];
+		sl::float4 localRotation = bodyData.local_orientation_per_joint[i];
+		sl::float3 worldTranslation = bodyData.keypoint[i];
+
+		position = FVector(worldTranslation.x, worldTranslation.y, worldTranslation.z);
+		if (position.ContainsNaN())
+		{
+			position = FVector::ZeroVector;
+		}
+
+		FQuat jointRotation = FQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w).GetNormalized();
+
+		if (jointRotation.ContainsNaN())
+		{
+			position = FVector::ZeroVector;
+		}
+
+		rigBoneTarget[targetBone[i]].SetLocation(position);
+		rigBoneTarget[targetBone[i]].SetRotation(jointRotation);
+
+	}
+
+	TArray<FTransform> transforms;
+	for (int i = 0; i < targetBone.Num() / 2; i++)
+	{
+		transforms.Push(rigBoneTarget[targetBone[i]]);
+	}
+
+	// Add keypoints confidence at the end of the Array of transforms.
+	for (int i = 0; i < targetBone.Num() / 2; i++)
+	{
+		FTransform kp_conf = FTransform::Identity;
+		kp_conf.SetLocation(FVector(bodyData.keypoint_confidence[i], bodyData.keypoint_confidence[i], bodyData.keypoint_confidence[i]));
+		transforms.Push(kp_conf);
+	}
+	SkeletonsData.Skeleton = transforms;
+	return SkeletonsData;
+}
+
+
+/////////////////////////////////////////////
+////////// Config file parsing //////////////
+/////////////////////////////////////////////
 
 sl::RESOLUTION toResolution(std::string value)
 {
@@ -145,6 +256,43 @@ sl::BODY_KEYPOINTS_SELECTION toBodySelection(std::string value)
 	return format;
 }
 
+sl::POSITIONAL_TRACKING_MODE toPositionalTrackingMode(std::string value)
+{
+	sl::POSITIONAL_TRACKING_MODE mode = sl::POSITIONAL_TRACKING_MODE::STANDARD;
+
+	if (value == "STANDARD") mode = sl::POSITIONAL_TRACKING_MODE::STANDARD;
+	else if (value == "QUALITY") mode = sl::POSITIONAL_TRACKING_MODE::QUALITY;
+	else mode = sl::POSITIONAL_TRACKING_MODE::STANDARD;
+
+	return mode;
+}
+
+PREDEFINED_DICTIONARY_NAME toArucoDictionary(std::string value)
+{
+	PREDEFINED_DICTIONARY_NAME dictionary;
+
+	if (value == "DICT_4X4_50")   dictionary = PREDEFINED_DICTIONARY_NAME::DICT_4X4_50;
+	else if (value == "DICT_4X4_100")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_4X4_100;
+	else if (value == "DICT_4X4_250")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_4X4_250;
+	else if (value == "DICT_4X4_1000") dictionary = PREDEFINED_DICTIONARY_NAME::DICT_4X4_1000;
+	else if (value == "DICT_5X5_50")   dictionary = PREDEFINED_DICTIONARY_NAME::DICT_5X5_50;
+	else if (value == "DICT_5X5_100")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_5X5_100;
+	else if (value == "DICT_5X5_250")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_5X5_250;
+	else if (value == "DICT_5X5_1000")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_5X5_1000;
+	else if (value == "DICT_6X6_50")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_6X6_50;
+	else if (value == "DICT_6X6_100")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_6X6_100;
+	else if (value == "DICT_6X6_250")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_6X6_250;
+	else if (value == "DICT_6X6_1000")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_6X6_1000;
+	else if (value == "DICT_7X7_50")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_7X7_50;
+	else if (value == "DICT_7X7_100")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_7X7_100;
+	else if (value == "DICT_7X7_250")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_7X7_250;
+	else if (value == "DICT_7X7_1000")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_7X7_1000;
+	else if (value == "DICT_ARUCO_ORIGINAL")  dictionary = PREDEFINED_DICTIONARY_NAME::DICT_ARUCO_ORIGINAL;
+	else dictionary = PREDEFINED_DICTIONARY_NAME::DICT_6X6_100;
+
+	return dictionary;
+}
+
 struct ZEDConfig {
 	sl::INPUT_TYPE input_type;
 	unsigned int id;
@@ -166,6 +314,12 @@ struct ZEDConfig {
 	int minimum_keypoints_threshold;
 	float skeleton_smoothing;
 	float grab_compute_capping_fps = 0;
+	sl::POSITIONAL_TRACKING_MODE positional_tracking_mode = sl::POSITIONAL_TRACKING_MODE::STANDARD;
+
+	// aruco detection
+	bool enable_aruco_detection = false;
+	float marker_size_meter = 0.15f;
+	PREDEFINED_DICTIONARY_NAME dictionary = PREDEFINED_DICTIONARY_NAME::DICT_6X6_100;
 
 	void read(nlohmann::json& injson) {
 
@@ -187,6 +341,10 @@ struct ZEDConfig {
 
 		enable_area_memory = injson["PositionalTrackingParameters"]["enable_area_memory"];
 		std::cout << "enable_area_memory : " << enable_area_memory << std::endl;
+
+		std::string mode = injson["PositionalTrackingParameters"]["mode"];
+		positional_tracking_mode = toPositionalTrackingMode(mode);
+		std::cout << "positional_tracking_mode : " << mode << std::endl;
 
 		enable_body_tracking_module = injson["BodyTrackingParameters"]["enable_module"];
 		std::cout << "enable_body_tracking_module : " << enable_body_tracking_module << std::endl;
@@ -213,6 +371,19 @@ struct ZEDConfig {
 
 			skeleton_smoothing = injson["BodyTrackingParameters"]["skeleton_smoothing"];
 			std::cout << "skeleton_smoothing : " << skeleton_smoothing << std::endl;
+		}
+
+		enable_aruco_detection = injson["ArucoDetection"]["enable_detection"];
+		std::cout << "enable_aruco_detection : " << enable_aruco_detection << std::endl;
+
+		if (enable_aruco_detection)
+		{
+			marker_size_meter = injson["ArucoDetection"]["marker_size_meter"];
+			std::cout << "marker_size_meter : " << marker_size_meter << std::endl;
+
+			std::string dic = injson["ArucoDetection"]["dictionary"];
+			dictionary = toArucoDictionary(dic);
+			std::cout << "dictionary : " << dic << std::endl;
 		}
 
 		sl::InputType::INPUT_TYPE i_type = toInputType(injson["InitParameters"]["input"]);

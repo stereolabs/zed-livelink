@@ -380,6 +380,24 @@ sl::POSITIONAL_TRACKING_STATE ZEDCamera::GetPosition(SL_PoseData& poseData, sl::
 	return e;
 }
 
+sl::POSITIONAL_TRACKING_STATE ZEDCamera::GetPosition(sl::Transform& pose, sl::REFERENCE_FRAME reference_frame)
+{
+	if (m_funcGetPosition == NULL)
+	{
+		return sl::POSITIONAL_TRACKING_STATE::OFF;
+	}
+
+	SL_PoseData poseData;
+	sl::POSITIONAL_TRACKING_STATE e = (sl::POSITIONAL_TRACKING_STATE)m_funcGetPosition(camera_id, poseData, reference_frame);
+
+	SL_Vector3 translation = poseData.translation;
+	SL_Quaternion orientation = poseData.rotation;
+	pose.setTranslation(sl::float3(translation.x, translation.y, translation.z));
+	pose.setOrientation(sl::float4(orientation.x, orientation.y, orientation.z, orientation.w));
+
+	return e;
+}
+
 int ZEDCamera::GetSerialNumber() {
 	if (m_funcGetSN == NULL)
 	{

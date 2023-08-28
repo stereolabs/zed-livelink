@@ -14,7 +14,7 @@
 #include "ZEDStructs.h"
 
 
-typedef void(*__InitArucoDetector)(float actual_marker_size_meters, PREDEFINED_DICTIONARY_NAME dictionary_name, float fx, float fy, float cx, float cy);
+typedef void(*__InitArucoDetector)(float actual_marker_size_meters, PREDEFINED_DICTIONARY_NAME dictionary_name, float fx, float fy, float cx, float cy, bool display_image);
 typedef void(*__DetectMarkers)(int width, int height, unsigned char* img_ptr);
 typedef bool(*__GetArucoPose)(float& t_x, float& t_y, float& t_z, float& q_x, float& q_y, float& q_z, float& q_w);
 
@@ -24,11 +24,11 @@ public :
 	ArucoDetector();
 	~ArucoDetector();
 
-	void Init(float actual_marker_size_meters, PREDEFINED_DICTIONARY_NAME dictionary_name, float fx, float fy, float cx, float cy);
+	void Init(float actual_marker_size_meters, PREDEFINED_DICTIONARY_NAME dictionary_name, float fx, float fy, float cx, float cy, bool display_image = false);
 
 	void DetectMarkers(int width, int height, unsigned char* img_ptr);
 
-	bool GetPose(float& t_x, float& t_y, float& t_z, float& q_x, float& q_y, float& q_z, float& q_w);
+	bool GetPose(sl::Transform& pose);
 
 private:
 
