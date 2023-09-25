@@ -237,6 +237,7 @@ ERROR_CODE InitCamera(int argc, char **argv, ZEDConfig& config)
 	init_params.sdk_verbose = 1;
 	init_params.input_type = config.input_type;
 	init_params.grab_compute_capping_fps = config.grab_compute_capping_fps;
+	init_params.enable_image_validity_check = config.enable_image_validity_check;
 	//parseArgs(argc, argv, init_params, pathSVO, ip, port);
 	ERROR_CODE err = zed->Open(init_params, config.serial_number, pathSVO.c_str(), ip.c_str(), port);
 

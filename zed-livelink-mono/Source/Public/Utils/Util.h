@@ -166,6 +166,7 @@ struct ZEDConfig {
 	int minimum_keypoints_threshold;
 	float skeleton_smoothing;
 	float grab_compute_capping_fps = 0;
+	bool enable_image_validity_check = false;
 
 	void read(nlohmann::json& injson) {
 
@@ -181,6 +182,9 @@ struct ZEDConfig {
 
 		grab_compute_capping_fps = injson["InitParameters"]["grab_compute_capping_fps"];
 		std::cout << "grab_compute_capping_fps : " << grab_compute_capping_fps << std::endl;
+
+		enable_image_validity_check = injson["InitParameters"]["enable_image_validity_check"];
+		std::cout << "enable_image_validity_check : " << enable_image_validity_check << std::endl;
 
 		enable_pose_smoothing = injson["PositionalTrackingParameters"]["enable_pose_smoothing"];
 		std::cout << "enable_pose_smoothing : " << enable_pose_smoothing << std::endl;
