@@ -22,7 +22,7 @@ typedef void(*__CloseFusion)();
 typedef int(*__Process)();
 typedef int(*__Subscribe)(SL_CameraIdentifier& uuid, SL_CommunicationParameters& params, SL_Vector3& pose_translation, SL_Quaternion& pose_rotation);
 typedef int(*__GetProcessMetrics)(SL_CameraIdentifier& uuid, SL_FusionMetrics& metrics);
-typedef void(*__ReadFusionConfigFile)(char json_config_filename[256], sl::COORDINATE_SYSTEM coord_system, sl::UNIT unit, SL_FusionConfiguration* configs, int& nb_cameras);
+typedef void(*__ReadFusionConfigFile)(const char* json_config_filename, sl::COORDINATE_SYSTEM coord_system, sl::UNIT unit, SL_FusionConfiguration* configs, int& nb_cameras);
 
 class ZEDFusion {
 public:
@@ -38,6 +38,7 @@ public:
 	sl::FUSION_ERROR_CODE Subscribe(SL_CameraIdentifier& uuid, SL_CommunicationParameters& params, SL_Vector3& pose_translation, SL_Quaternion& pose_rotation);
 	sl::FUSION_ERROR_CODE GetProcessMetrics(SL_CameraIdentifier& uuid, SL_FusionMetrics& stats);
 	void ReadFusionConfigFile(std::string jsonConfigFilename, sl::COORDINATE_SYSTEM coord_system, sl::UNIT unit, SL_FusionConfiguration* configs, int& nb_cameras);
+	void ReadFusionConfig(std::string fusionConfiguration, sl::COORDINATE_SYSTEM coord_system, sl::UNIT unit, SL_FusionConfiguration* configs, int& nb_cameras);
 
 private:
 	void *v_dllHandle;
@@ -50,6 +51,7 @@ private:
 	__Subscribe m_funcSubscribe;
 	__GetProcessMetrics m_funcGetProcessMetrics;
 	__ReadFusionConfigFile m_funcReadFusionConfigFile;
+	__ReadFusionConfigFile m_funcReadFusionConfig;
 
 	bool ImportMethod_Init();
 	bool ImportMethod_Process();
@@ -60,6 +62,7 @@ private:
 	bool ImportMethod_RetrieveBodies();
 	bool ImportMethod_GetProcessMetrics();
 	bool ImportMethod_ReadFusionConfigFile();
+	bool ImportMethod_ReadFusionConfig();
 
 	bool LoadDll(FString DLLName);
 	void UnloadDll();

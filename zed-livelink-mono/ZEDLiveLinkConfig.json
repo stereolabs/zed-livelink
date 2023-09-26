@@ -6,7 +6,8 @@
     "resolution": "HD720",
     "fps": 60,
     "depth_mode": "ULTRA",
-	"grab_compute_capping_fps": 0
+	  "grab_compute_capping_fps": 0,
+    "enable_image_validity_check": false
   },
   "PositionalTrackingParameters":
   {

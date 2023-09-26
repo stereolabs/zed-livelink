@@ -162,6 +162,7 @@ struct ZEDFusionConfig {
 	float sender_confidence;
 	float sender_max_range;
 	float grab_compute_capping_fps = 0;
+	bool enable_image_validity_check = false;
 
 	void read(nlohmann::json& injson) {
 
@@ -178,6 +179,9 @@ struct ZEDFusionConfig {
 
 		grab_compute_capping_fps = injson["InitParameters"]["grab_compute_capping_fps"];
 		std::cout << "grab_compute_capping_fps : " << grab_compute_capping_fps << std::endl;
+
+		enable_image_validity_check = injson["InitParameters"]["enable_image_validity_check"];
+		std::cout << "enable_image_validity_check : " << enable_image_validity_check << std::endl;
 
 		sender_detection_model = toDetectionModel(injson["BodyTrackingParameters"]["detection_model"]);
 		std::cout << "detection_model : " << sender_detection_model << std::endl;

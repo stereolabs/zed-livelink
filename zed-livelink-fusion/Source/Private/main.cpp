@@ -375,11 +375,13 @@ void PopulateSkeletonsData(SL_Bodies& bodies) {
  				UpdateSkeletonStaticData(FName(FString::FromInt(bodyData.id)));
 				StreamedSkeletonData data = BuildSkeletonsTransformFromZEDObjects(bodyData, bodies.timestamp);
 				StreamedSkeletons.Add(bodyData.id, data);
+				//std::cout << "new " << bodyData.id << " / ts: " << bodies.timestamp << std::endl;
 			}
 			else
 			{
 				StreamedSkeletons[bodyData.id] = BuildSkeletonsTransformFromZEDObjects(bodyData, bodies.timestamp);
 				remainingKeyList.Remove(bodyData.id);
+				//std::cout << "existing " << bodyData.id << " / ts: " << bodies.timestamp << std::endl;
 			}
 		}
 	}
@@ -387,7 +389,9 @@ void PopulateSkeletonsData(SL_Bodies& bodies) {
 	{
 		LiveLinkProvider->RemoveSubject(FName(FString::FromInt(remainingKeyList[index])));
 		StreamedSkeletons.Remove(remainingKeyList[index]);
+		//std::cout << "removing " << remainingKeyList[index] << " / ts: " << bodies.timestamp << std::endl;
 	}
+	//std::cout << "StramedSkeletons count this frame: " << StreamedSkeletons.Num() << " / ts: " << bodies.timestamp << std::endl;
 }
 
 //// Update Camera static data

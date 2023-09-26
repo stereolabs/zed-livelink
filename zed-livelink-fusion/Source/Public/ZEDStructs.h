@@ -102,6 +102,8 @@ struct SL_InitParameters
 
 	float grab_compute_capping_fps;
 
+	bool enable_image_validity_check;
+
 	SL_InitParameters() {
 		input_type = sl::INPUT_TYPE::USB;
 		camera_resolution = sl::RESOLUTION::HD720;
@@ -124,6 +126,7 @@ struct SL_InitParameters
 		open_timeout_sec = 5.0f;
 		async_grab_camera_recovery = false;
 		grab_compute_capping_fps = 0;
+		enable_image_validity_check = false;
 	}
 };
 

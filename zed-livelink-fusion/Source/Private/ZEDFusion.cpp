@@ -161,6 +161,21 @@ bool ZEDFusion::ImportMethod_ReadFusionConfigFile()
 	return false;// Return an error.
 }
 
+bool ZEDFusion::ImportMethod_ReadFusionConfig()
+{
+	if (v_dllHandle != NULL)
+	{
+		m_funcReadFusionConfig = NULL;
+		FString procName = "sl_fusion_read_configuration";// Needs to be the exact name of the DLL method.
+		m_funcReadFusionConfig = (__ReadFusionConfigFile)FPlatformProcess::GetDllExport(v_dllHandle, *procName);
+		if (m_funcReadFusionConfig != NULL)
+		{
+			return true;
+		}
+	}
+	return false;// Return an error.
+}
+
 
 
 bool ZEDFusion::LoadDll(FString DLLName)
@@ -179,6 +194,7 @@ bool ZEDFusion::LoadDll(FString DLLName)
 			ImportMethod_RetrieveBodies();
 			ImportMethod_GetProcessMetrics();
 			ImportMethod_ReadFusionConfigFile();
+			ImportMethod_ReadFusionConfig();
 			return true;
 		}
 	}
@@ -280,10 +296,18 @@ void ZEDFusion::ReadFusionConfigFile(std::string jsonConfigFilename, sl::COORDIN
 	{
 		return;
 	}
-	char path_char_array[256];
-	strcpy(path_char_array, jsonConfigFilename.c_str());
-	
-	return m_funcReadFusionConfigFile(path_char_array, coord_system, unit, configs, nb_cameras);
+
+	return m_funcReadFusionConfigFile(jsonConfigFilename.c_str(), coord_system, unit, configs, nb_cameras);
+}
+
+void ZEDFusion::ReadFusionConfig(std::string fusionConfiguration, sl::COORDINATE_SYSTEM coord_system, sl::UNIT unit, SL_FusionConfiguration* configs, int& nb_cameras)
+{
+	if (m_funcReadFusionConfig == NULL)
+	{
+		return;
+	}
+
+	return m_funcReadFusionConfig(fusionConfiguration.c_str(), coord_system, unit, configs, nb_cameras);
 }
 
 #endif

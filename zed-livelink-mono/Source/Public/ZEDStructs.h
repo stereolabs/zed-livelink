@@ -101,6 +101,15 @@ struct SL_InitParameters
 	 */
 	float grab_compute_capping_fps;
 
+	/**
+	* Enable or disable the image validity verification.
+	This will perform additional verification on the image to identify corrupted data. This verification is done in the sl::Camera.grab() method and requires some computations.
+	If an issue is found, the sl::Camera.grab() method will output a warning as sl::ERROR_CODE::CORRUPTED_FRAME.
+	This version doesn't detect frame tearing currently.
+	Default: false (disabled)
+	*/
+	bool enable_image_validity_check;
+
 	SL_InitParameters() {
 		input_type = sl::INPUT_TYPE::USB;
 		camera_resolution = sl::RESOLUTION::HD720;
@@ -122,7 +131,8 @@ struct SL_InitParameters
 		enable_image_enhancement = true;
 		open_timeout_sec = 5.0f;
 		async_grab_camera_recovery = false;
-		grab_compute_capping_fps = 0;
+		grab_compute_capping_fps = 0; 
+		enable_image_validity_check = false;
 	}
 };
 
