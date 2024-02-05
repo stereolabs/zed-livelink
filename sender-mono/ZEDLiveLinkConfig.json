@@ -1,0 +1,40 @@
+{
+  "StreamingParameters":
+  {
+    "connection_type": "MULTICAST",
+    "ip": "230.0.0.1",
+    "port": 2000,
+    "send_bodies": true,
+    "send_camera_pose": true
+  },
+  "InitParameters":
+  {
+    "input": "USB_ID",
+    "input_path": 0,
+    "resolution": "HD720",
+    "fps": 60,
+    "depth_mode": "ULTRA",
+	  "grab_compute_capping_fps": 0
+  },
+  "PositionalTrackingParameters":
+  {
+    "set_as_static": true,
+    "set_floor_as_origin": true,
+    "enable_pose_smoothing" : true,
+    "enable_area_memory": false
+  },
+  "BodyTrackingParameters":
+  {
+    "detection_model": "HUMAN_BODY_ACCURATE",
+    "body_format": "BODY_38",
+    "confidence": 50,
+    "max_range": -1,
+    "minimum_keypoints_threshold" : -1,
+	  "skeleton_smoothing": 0.2
+  },
+  "ArucoDetection":
+  {
+	  "marker_size_meter": 0.15,
+	  "dictionary": "6x6_100"
+  }
+}

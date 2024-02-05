@@ -1,0 +1,37 @@
+{
+  "StreamingParameters":
+  {
+    "connection_type": "MULTICAST",
+    "ip": "230.0.0.1",
+    "port": 2000,
+    "send_bodies": true,
+    "send_camera_pose": true
+  },
+  "InitParameters":
+  {
+    "resolution": "HD720",
+    "fps": 30,
+    "depth_mode": "ULTRA",
+	  "grab_compute_capping_fps": 0
+  },
+  "BodyTrackingParameters":
+  {
+    "detection_model": "HUMAN_BODY_MEDIUM",
+    "body_format": "BODY_38",
+    "confidence": 50,
+    "max_range": -1,
+    "minimum_keypoints_threshold" : -1
+  },
+  "InitFusionParameters":
+  {
+    "json_config_filename": "",
+    "verbose": false
+
+  },
+  "BodyTrackingFusionParameters":
+  {
+    "skeleton_minimm_allowed_keypoints": 8,
+    "skeleton_minimum_allowed_camera": -1,
+    "skeleton_smoothing": 0.2
+  }
+}
