@@ -9,12 +9,15 @@ This sample can be used to send either camera tracking data or skeleton data fro
 
 This sample can be used to send skeleton data from multiples camera using the Fusion API (introduced in the v4.0 of the ZED SDK) into Unreal Engine 5 using Live link.
 
-# Unreal Project
+# Unreal Plugin
 
-This unreal project shows you how to use the body tracking data sent through live link to animate a 3D model.
+This plugin allows you how to use the body tracking data sent through live link to animate a 3D model.
 
-You can find more information on the Stereolabs [documentation](https://www.stereolabs.com/docs/livelink/livelink-ue5/)
+- Copy the **ZEDLiveLink** folder in the **Plugins** Directory of your project.
 
+The plugin should be visible (and enabled) in the Plugins window in your Unreal Project.
+
+![](images/zed_plugin.jpg)
 
 ## Connect to a livelink Source
 
