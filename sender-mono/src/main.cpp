@@ -83,7 +83,6 @@ int main(int argc, char **argv) {
     init_parameters.grab_compute_capping_fps = zed_config.grab_compute_capping_fps;
 
     init_parameters.input = zed_config.input;
-    init_parameters.input.setFromSVOFile("D:/SVO/bodyTracking.svo");
     init_parameters.svo_real_time_mode = true;
 
     // Open the camera
