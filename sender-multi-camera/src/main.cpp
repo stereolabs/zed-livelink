@@ -82,11 +82,12 @@ int main(int argc, char **argv) {
     }
     else if (argc > 2)
     {
-        std::cout << "Unexecpected arguments, exiting..." << std::endl;
+        std::cout << "Usage: ./ZED_livelink_fusion.exe [path/to/ZEDFusionLiveLinkConfig.json (optional)]" << std::endl;
+        std::cout << "Unexpected arguments, exiting..." << std::endl;
         return EXIT_FAILURE;
     }
     else {
-        std::cout << "Trying to load default config file 'ZEDFusionLiveLinkConfig.json' " << std::endl;
+        std::cout << "Trying to load default config file 'ZEDFusionLiveLinkConfig.json' next to executable..." << std::endl;
     }
     readZEDFusionConfig(zed_fusion_config_file, zed_fusion_config);
 
@@ -164,7 +165,7 @@ int main(int argc, char **argv) {
     sl::FusionMetrics metrics;
 
     // ----------------------------------
-    // UDP to Unity----------------------
+    // UDP Sending ----------------------
     // ----------------------------------
     std::string servAddress;
     unsigned short servPort;
@@ -204,7 +205,7 @@ int main(int argc, char **argv) {
                     try
                     {
                         // ----------------------------------
-                        // UDP to Unity----------------------
+                        // UDP Sending ----------------------
                         // ----------------------------------
 
                         // send body data one at a time instead of as one single packet.
