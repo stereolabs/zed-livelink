@@ -171,8 +171,6 @@ int main(int argc, char **argv) {
     unsigned short servPort;
     UDPSocket sock;
 
-    bool run = true;
-
     if (zed_fusion_config.connection_type == CONNECTION_TYPE::MULTICAST) sock.setMulticastTTL(1);
 
     servAddress = zed_fusion_config.udp_ip;
@@ -217,7 +215,6 @@ int main(int argc, char **argv) {
                     }
                     catch (SocketException& e)
                     {
-
                         cerr << e.what() << endl;
                     }
                 }
@@ -225,7 +222,7 @@ int main(int argc, char **argv) {
         }
 
 #if DISPLAY_OGL
-        run = viewer.isAvailable();
+        exit_app = !viewer.isAvailable();
 #endif
         sl::sleep_ms(10);
     }

@@ -140,12 +140,14 @@ void FAnimNode_ZEDLiveLinkPose::BuildPoseFromZEDAnimationData(float DeltaTime,
             NbKeypoints = 38;
             Keypoints = Keypoints38;
             ParentsIdx = Parents38Idx;
+            CurBoneNameMap = &BoneNameMap38;
         }
         else if (InFrameData->Transforms.Num() == Keypoints34.Num() * 2)// BODY_34
         {
             NbKeypoints = 34;
             Keypoints = Keypoints34;
             ParentsIdx = Parents34Idx;
+            CurBoneNameMap = &BoneNameMap34;
         }
         else
         {
@@ -163,7 +165,7 @@ void FAnimNode_ZEDLiveLinkPose::BuildPoseFromZEDAnimationData(float DeltaTime,
             UE_LOG(LogTemp, Fatal, TEXT("Bone names mismatch between remap asset and live link sender. %s"), *SrcBoneName.ToString());
         }
 
-        FName* TargetBoneName = BoneNameMap.Find(SrcBoneName);
+        FName* TargetBoneName = CurBoneNameMap->Find(SrcBoneName);
         if (!SrcBoneName.ToString().ToLower().Contains("conf") && TargetBoneName == nullptr)
         {
             UE_LOG(LogTemp, Fatal, TEXT("Error in remap asset. Do not find remapped name of %s"), *SrcBoneName.ToString());
@@ -263,7 +265,7 @@ void FAnimNode_ZEDLiveLinkPose::BuildPoseFromZEDAnimationData(float DeltaTime,
                 FVector Translation;
 
                 // Only use position + rotation data for root. For all other bones, set rotation only.
-                if (BoneName == BoneNameMap[GetTargetRootName()])
+                if (BoneName == (*CurBoneNameMap)[GetTargetRootName()])
                 {
                     float rootScaleFactor = ComputeRootTranslationFactor(OutPose, TransformedBoneNames, InFrameData);
 

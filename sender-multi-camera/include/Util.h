@@ -6,7 +6,7 @@
 
 // Defines the Coordinate system and unit used in this sample
 static const sl::COORDINATE_SYSTEM coord_sys = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP;
-static const sl::UNIT coord_unit = sl::UNIT::MILLIMETER;
+static const sl::UNIT coord_unit = sl::UNIT::METER;
 
 // Type of data send 
 enum class ZEDLiveLinkRole

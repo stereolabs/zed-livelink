@@ -31,7 +31,12 @@ public:
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SourceData, meta = (PinShownByDefault))
-	TMap<FName, FName> BoneNameMap;
+	TMap<FName, FName> BoneNameMap34;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SourceData, meta = (PinShownByDefault))
+	TMap<FName, FName> BoneNameMap38;
+
+	TMap<FName, FName>* CurBoneNameMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SourceData, meta = (PinShownByDefault))
 	bool bMirrorOnZAxis;
