@@ -186,7 +186,7 @@ void FAnimNode_ZEDLiveLinkPose::BuildPoseFromZEDAnimationData(float DeltaTime,
             FVector LeftFootPosition;
             FVector RightFootPosition;
 
-            if (InFrameData->Transforms.Num() == 34 * 2) // body 34
+            if (Keypoints.Num() == 34) // body 34
             {
                 LeftFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[21]);
                 RightFootPosition = SkeletalMesh->GetBoneLocation(TransformedBoneNames[25]);

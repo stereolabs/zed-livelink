@@ -31,10 +31,5 @@
     "max_range": -1,
     "minimum_keypoints_threshold" : -1,
 	  "skeleton_smoothing": 0.2
-  },
-  "ArucoDetection":
-  {
-	  "marker_size_meter": 0.15,
-	  "dictionary": "6x6_100"
   }
 }

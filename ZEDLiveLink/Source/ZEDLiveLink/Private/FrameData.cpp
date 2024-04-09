@@ -52,8 +52,8 @@ FrameData::FrameData(FString frameData)
 
         if (role == (int)EZEDLiveLinkRole::Camera)
         {
-            int SerialNumber = -1;
-            if (JsonObject->TryGetNumberField("serial_number", SerialNumber))
+            int64 SerialNumber = -1;
+            if (!JsonObject->TryGetNumberField("serial_number", SerialNumber))
             {
                 bIsValid = false;
                 return;
