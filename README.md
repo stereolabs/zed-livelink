@@ -1,6 +1,14 @@
 # Stereolabs ZED - Live Link Sample
 ZED LiveLink Sample for Unreal Engine 5.
 
+**Important**: Starting from the version 4.1.0 of the ZED SDK, the ZED Live Link plugin has been reworked.
+This new sample contains :
+
+- a *real* Unreal plugin that can be added to any UE project.
+- a mono and fusion sender that **do not** need to be compiled using the **Unreal Engine source files** anymore.
+
+If you find any bugs or have feedback regarding this new sample, please contact us at support@stereolabs.com
+
 
 ![](images/livelink_ue_300.gif)
 
