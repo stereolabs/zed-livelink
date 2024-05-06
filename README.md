@@ -45,7 +45,7 @@ The "LiveLinkMap" level no longer automatically connects to a live link at Start
 
 ## Senders
 
-> **Note:** The senders **do not** need to be compiled using the **Unreal Engine source files** anymore. You can build them like any other application using CMake. Please refer to the [documentation about our samples](http://localhost:1313/docs/samples/) for guidance if needed.
+> **Note:** The senders **do not** need to be compiled using the **Unreal Engine source files** anymore. You can build them like any other application using CMake. Please refer to the [documentation about our samples](https://www.stereolabs.com/docs/samples) for guidance if needed.
 
 ### Live Link Config Files
 
