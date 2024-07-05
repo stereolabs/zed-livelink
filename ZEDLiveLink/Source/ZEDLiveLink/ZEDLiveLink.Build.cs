@@ -44,8 +44,6 @@ public class ZEDLiveLink : ModuleRules
                 "Networking",
                 "Sockets",
                 "LiveLink",
-                "AnimGraph",
-                "BlueprintGraph",
                 "AnimGraphRuntime",
                 "LiveLinkInterface",
             }
