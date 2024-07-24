@@ -64,3 +64,16 @@ This sample can be used to send camera tracking data and skeleton data from one 
 This sample can be used to send skeleton data from multiple cameras using the Fusion API (introduced in the 4.0 version of the ZED SDK) into Unreal Engine 5 using Live Link.
 
 > **Note:** Make sure to put the path to your ZED360-generated Fusion configuration file in "ZEDFusionLiveLinkConfig.json", under `json_config_filename`.
+
+## Troubleshooting
+
+### Live Link correctly receives the camera's pose, but not the skeleton animation
+
+Our plugin sends skeleton data through the network, and the resulting packets' size can (most probably, will) exceed the standard maximum transmission unit (MTU) size of 1500 bytes that Ethernet allows.
+To bypass that, you might have to overwrite the "Jumbo Frame size" property of your Ethernet card to a higher value.
+Instructions depend on your operating system and should be easy to find with the keywords "JUMBO Frames configuration" on your search engine of choice.
+
+### Resources
+
+- The [ZED Live Link documentation](https://www.stereolabs.com/docs/livelink/livelink-ue5)
+- The [Stereolabs forums](https://community.stereolabs.com/)
