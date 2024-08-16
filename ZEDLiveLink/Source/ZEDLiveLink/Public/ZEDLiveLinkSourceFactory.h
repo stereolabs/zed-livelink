@@ -2,6 +2,7 @@
 
 #include "LiveLinkSourceFactory.h"
 #include "Interfaces/IPv4/IPv4Endpoint.h"
+#include "ZEDLiveLinkSettings.h"
 #include "ZEDLiveLinkSourceFactory.generated.h"
 
 class SZEDLiveLinkSourceEditor;
