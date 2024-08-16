@@ -26,7 +26,7 @@
 
 FZEDLiveLinkSource::FZEDLiveLinkSource(const FZEDLiveLinkSettings& InSettings)
 : Socket(nullptr)
-, Stopping(false)
+, bIsRunning(false)
 , Thread(nullptr)
 , WaitTime(FTimespan::FromMilliseconds(500))
 {
@@ -101,7 +101,7 @@ void FZEDLiveLinkSource::ReceiveClient(ILiveLinkClient* InClient, FGuid InSource
 bool FZEDLiveLinkSource::IsSourceStillValid() const
 {
 	// Source is valid if we have a valid thread and socket
-	bool bIsSourceValid = !Stopping && Thread != nullptr && Socket != nullptr;
+	bool bIsSourceValid = bIsRunning && Thread != nullptr && Socket != nullptr;
 	return bIsSourceValid;
 }
 
@@ -117,6 +117,8 @@ bool FZEDLiveLinkSource::RequestSourceShutdown()
 
 void FZEDLiveLinkSource::Start()
 {
+	bIsRunning = true;
+
 	ThreadName = "ZED UDP Receiver ";
 	ThreadName.AppendInt(FAsyncThreadIndex::GetNext());
 	
@@ -125,13 +127,13 @@ void FZEDLiveLinkSource::Start()
 
 void FZEDLiveLinkSource::Stop()
 {
-	Stopping = true;
+	bIsRunning = false;
 }
 
 uint32 FZEDLiveLinkSource::Run()
 {
 	TSharedRef<FInternetAddr> Sender = SocketSubsystem->CreateInternetAddr();
-	while (!Stopping)
+	while (bIsRunning)
 	{
 		if (Socket->Wait(ESocketWaitConditions::WaitForRead, WaitTime))
 		{
@@ -148,7 +150,7 @@ uint32 FZEDLiveLinkSource::Run()
 				{
 					if (Read > 0)
 					{
-						TSharedPtr<TArray<uint8>> ReceivedData = MakeShareable(new TArray<uint8>());
+						TSharedPtr<TArray<uint8>, ESPMode::ThreadSafe> ReceivedData = MakeShareable(new TArray<uint8>());
 						ReceivedData->SetNumUninitialized(Read);
 						memcpy(ReceivedData->GetData(), RecvBuffer.GetData(), Read);
 						AsyncTask(ENamedThreads::GameThread, [this, ReceivedData]() { ProcessReceivedData(ReceivedData); });
@@ -185,7 +187,7 @@ void FZEDLiveLinkSource::ProcessReceivedData(TSharedPtr<TArray<uint8>> ReceivedD
 	FLiveLinkFrameDataStruct FrameData;
 
 	FLiveLinkSubjectKey Key = FLiveLinkSubjectKey(SourceGuid, SubjectName);
-	if (Client) 
+	if (Client && bIsRunning)
 	{
 		if (frameData.bIsValid) 
 		{
@@ -200,27 +202,36 @@ void FZEDLiveLinkSource::ProcessReceivedData(TSharedPtr<TArray<uint8>> ReceivedD
 			}
 			else
 			{
-				if (!Subjects.Contains(SubjectName) && !Client->GetSubjects(true, false).Contains(Key))
+				TArray<FLiveLinkSubjectKey> SubjectsKey;
+				FScopeLock Lock(&SubjectsCriticalSection);
 				{
-					FLiveLinkSubjectPreset Preset;
-					Preset.Key = Key;
-					Preset.Role = frameData.SubjectRole;
-					//Preset.bEnabled = true;
+					SubjectsKey = Client->GetSubjects(true, false);
+				}
 
-					if (Client->GetSources().Num() > 0)
+				if (!SubjectsKey.Contains(Key))
+				{
+					if (!Subjects.Contains(SubjectName))
 					{
-						Client->CreateSubject(Preset);
-						Client->SetSubjectEnabled(Key, true);
+						FLiveLinkSubjectPreset Preset;
+						Preset.Key = Key;
+						Preset.Role = frameData.SubjectRole;
+						//Preset.bEnabled = true;
 
-						Subjects.Push(SubjectName);
+						if (Client->GetSources().Num() > 0)
+						{
+							Client->CreateSubject(Preset);
+							Client->SetSubjectEnabled(Key, true);
 
-						if (frameData.SubjectRole == ULiveLinkCameraRole::StaticClass())
-						{
-							UpdateCameraStaticData(SubjectName, frameData.CameraTransform);
-						}
-						else if (frameData.SubjectRole == ULiveLinkAnimationRole::StaticClass())
-						{
-							UpdateAnimationStaticData(SubjectName, frameData.ParentsIdx, frameData.TargetBones);
+							Subjects.Push(SubjectName);
+
+							if (frameData.SubjectRole == ULiveLinkCameraRole::StaticClass())
+							{
+								UpdateCameraStaticData(SubjectName, frameData.CameraTransform);
+							}
+							else if (frameData.SubjectRole == ULiveLinkAnimationRole::StaticClass())
+							{
+								UpdateAnimationStaticData(SubjectName, frameData.ParentsIdx, frameData.TargetBones);
+							}
 						}
 					}
 				}

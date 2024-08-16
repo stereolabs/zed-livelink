@@ -70,7 +70,7 @@ private:
 	ISocketSubsystem* SocketSubsystem;
 
 	// Threadsafe Bool for terminating the main thread loop
-	FThreadSafeBool Stopping;
+	FThreadSafeBool bIsRunning;
 
 	// Thread to run socket operations on
 	FRunnableThread* Thread;
@@ -87,6 +87,7 @@ private:
 	// Buffer to receive socket data into
 	TArray<uint8> RecvBuffer;
 
+	mutable FCriticalSection SubjectsCriticalSection;
 
 	bool FirstConnection = true;
 	// Check if static data is setup
