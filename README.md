@@ -1,5 +1,5 @@
 # Stereolabs ZED - Live Link Sample
-ZED LiveLink Sample for Unreal Engine 5.
+ZED LiveLink Sample for Unreal Engine 5.3 or later.
 
 **Important**: Starting from the version 4.1.0 of the ZED SDK, the ZED Live Link plugin has been reworked.
 This new sample contains :
