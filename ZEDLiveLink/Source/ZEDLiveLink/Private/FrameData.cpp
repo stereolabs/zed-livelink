@@ -3,11 +3,17 @@
 
 FrameData::FrameData(FString frameData)
 {
-    // Create a variable to store the parsed JSON data
-    TSharedPtr<FJsonObject> JsonObject;
-
     // Create a reader for the JSON data
     TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(frameData);
+
+	// Deserialize the JSON data
+	Deserialize(Reader);
+}
+
+void FrameData::Deserialize(TSharedRef<TJsonReader<>> Reader)
+{
+    // Create a variable to store the parsed JSON data
+    TSharedPtr<FJsonObject> JsonObject;
 
     bIsValid = false;
     Timestamp = 0;
@@ -17,33 +23,33 @@ FrameData::FrameData(FString frameData)
         // Successfully parsed the JSON data
 
         int role = -1;
-        if (!JsonObject->TryGetNumberField("role", role))
+        if (!JsonObject->TryGetNumberField(FString("role"), role))
         {
             bIsValid = false;
             return;
         }
 
-        if (!JsonObject->TryGetNumberField("timestamp", Timestamp))
+        if (!JsonObject->TryGetNumberField(FString("timestamp"), Timestamp))
         {
             bIsValid = false;
             return;
         }
 
-        if(!JsonObject->TryGetNumberField("frame_id", FrameID))
+        if (!JsonObject->TryGetNumberField(FString("frame_id"), FrameID))
         {
             bIsValid = false;
             return;
         }
 
         int value = 0;
-        if (!JsonObject->TryGetNumberField("coordinate_system", value))
+        if (!JsonObject->TryGetNumberField(FString("coordinate_system"), value))
         {
             bIsValid = false;
             return;
         }
         CoordinateSystem = (EZEDCoordinateSystem)value;
 
-        if (!JsonObject->TryGetNumberField("coordinate_unit", value))
+        if (!JsonObject->TryGetNumberField(FString("coordinate_unit"), value))
         {
             bIsValid = false;
             return;
@@ -53,7 +59,7 @@ FrameData::FrameData(FString frameData)
         if (role == (int)EZEDLiveLinkRole::Camera)
         {
             int64 SerialNumber = -1;
-            if (!JsonObject->TryGetNumberField("serial_number", SerialNumber))
+            if (!JsonObject->TryGetNumberField(FString("serial_number"), SerialNumber))
             {
                 bIsValid = false;
                 return;
@@ -63,20 +69,21 @@ FrameData::FrameData(FString frameData)
             SubjectRole = ULiveLinkCameraRole::StaticClass();
 
             const TSharedPtr<FJsonObject>* CameraPositionArray;
-            if (!JsonObject->TryGetObjectField("camera_position", CameraPositionArray))
+            if (!JsonObject->TryGetObjectField(FString("camera_position"), CameraPositionArray))
             {
                 bIsValid = false;
                 return;
             }
-            FVector CameraPosition = ConvertCoordinateUnitToUE(CoordinateUnit, FVector(CameraPositionArray->Get()->GetNumberField("x"), CameraPositionArray->Get()->GetNumberField("y"), CameraPositionArray->Get()->GetNumberField("z")));
+            FVector CameraPosition = ConvertCoordinateUnitToUE(CoordinateUnit, FVector(CameraPositionArray->Get()->GetNumberField(FString("x")), CameraPositionArray->Get()->GetNumberField(FString("y")), CameraPositionArray->Get()->GetNumberField(FString("z"))));
 
             const TSharedPtr<FJsonObject>* CameraOrientationArray;
-            if (!JsonObject->TryGetObjectField("camera_orientation", CameraOrientationArray))
+            if (!JsonObject->TryGetObjectField(FString("camera_orientation"), CameraOrientationArray))
             {
                 bIsValid = false;
                 return;
             }
-            FQuat CameraOrientation = FQuat(CameraOrientationArray->Get()->GetNumberField("x"), CameraOrientationArray->Get()->GetNumberField("y"), CameraOrientationArray->Get()->GetNumberField("z"), CameraOrientationArray->Get()->GetNumberField("w"));
+            FQuat CameraOrientation = FQuat(CameraOrientationArray->Get()->GetNumberField(FString("x")), CameraOrientationArray->Get()->GetNumberField(FString("y")),
+                CameraOrientationArray->Get()->GetNumberField(FString("z")), CameraOrientationArray->Get()->GetNumberField(FString("w")));
 
             CameraTransform.SetLocation(CameraPosition);
             CameraTransform.SetRotation(CameraOrientation);
@@ -88,8 +95,8 @@ FrameData::FrameData(FString frameData)
         else if (role == (int)EZEDLiveLinkRole::Animation)
         {
             int DetectionID = -1;
-            
-            if (!JsonObject->TryGetNumberField("id", DetectionID))
+
+            if (!JsonObject->TryGetNumberField(FString("id"), DetectionID))
             {
                 bIsValid = false;
                 return;
@@ -99,21 +106,21 @@ FrameData::FrameData(FString frameData)
             SubjectRole = ULiveLinkAnimationRole::StaticClass();
 
             EZEDBodyFormat ZEDBodyFormat = EZEDBodyFormat::Body_38;
-            
-            if (!JsonObject->TryGetNumberField("body_format", value))
+
+            if (!JsonObject->TryGetNumberField(FString("body_format"), value))
             {
                 bIsValid = false;
                 return;
             }
             ZEDBodyFormat = (EZEDBodyFormat)value;
 
-            if (!JsonObject->TryGetNumberField("tracking_state", value))
+            if (!JsonObject->TryGetNumberField(FString("tracking_state"), value))
             {
                 bIsValid = false;
                 return;
             }
             BodyTrackingState = (EZEDTrackingState)value;
-            
+
 
             if (ZEDBodyFormat == EZEDBodyFormat::Body_34)// BODY_34
             {
@@ -131,11 +138,12 @@ FrameData::FrameData(FString frameData)
             }
 
             // Root transform of the skeleton
-            auto rootPositionJsonValue = JsonObject->GetObjectField("global_root_posititon");
-            FVector rootPosition = ConvertCoordinateUnitToUE(CoordinateUnit, FVector(rootPositionJsonValue->GetNumberField("x"), rootPositionJsonValue->GetNumberField("y"), rootPositionJsonValue->GetNumberField("z")));
+            auto rootPositionJsonValue = JsonObject->GetObjectField(FString("global_root_posititon"));
+            FVector rootPosition = ConvertCoordinateUnitToUE(CoordinateUnit, FVector(rootPositionJsonValue->GetNumberField(FString("x")), rootPositionJsonValue->GetNumberField(FString("y")), rootPositionJsonValue->GetNumberField(FString("z"))));
 
-            auto rootOrientationJsonValue = JsonObject->GetObjectField("global_root_orientation");
-            FQuat rootOrientation = FQuat(rootOrientationJsonValue->GetNumberField("x"), rootOrientationJsonValue->GetNumberField("y"), rootOrientationJsonValue->GetNumberField("z"), rootOrientationJsonValue->GetNumberField("w"));
+            auto rootOrientationJsonValue = JsonObject->GetObjectField(FString("global_root_orientation"));
+            FQuat rootOrientation = FQuat(rootOrientationJsonValue->GetNumberField(FString("x")), rootOrientationJsonValue->GetNumberField(FString("y")), rootOrientationJsonValue->GetNumberField(FString("z")),
+                rootOrientationJsonValue->GetNumberField(FString("w")));
 
             if (rootPosition.ContainsNaN())
             {
@@ -146,9 +154,9 @@ FrameData::FrameData(FString frameData)
                 rootOrientation = FQuat::Identity;
             }
 
-            TArray< TSharedPtr<FJsonValue>> LocalPositions = JsonObject->GetArrayField("local_position_per_joint");
-            TArray< TSharedPtr<FJsonValue>> LocalOrientations = JsonObject->GetArrayField("local_orientation_per_joint");
-            
+            TArray< TSharedPtr<FJsonValue>> LocalPositions = JsonObject->GetArrayField(FString("local_position_per_joint"));
+            TArray< TSharedPtr<FJsonValue>> LocalOrientations = JsonObject->GetArrayField(FString("local_orientation_per_joint"));
+
             FTransform RootTransform;
             rootOrientation.Normalize();
             RootTransform.SetRotation(rootOrientation);
@@ -160,8 +168,10 @@ FrameData::FrameData(FString frameData)
             // Local position and rotation of each keypoint
             for (int i = 1; i < NbKeypoints; i++)
             {
-                FQuat Orientation = FQuat(LocalOrientations[i]->AsObject()->GetNumberField("x"), LocalOrientations[i]->AsObject()->GetNumberField("y"), LocalOrientations[i]->AsObject()->GetNumberField("z"), LocalOrientations[i]->AsObject()->GetNumberField("w"));
-                FVector Position = ConvertCoordinateUnitToUE(CoordinateUnit, FVector(LocalPositions[i]->AsObject()->GetNumberField("x"), LocalPositions[i]->AsObject()->GetNumberField("y"), LocalPositions[i]->AsObject()->GetNumberField("z")));
+                FQuat Orientation = FQuat(LocalOrientations[i]->AsObject()->GetNumberField(FString("x")), LocalOrientations[i]->AsObject()->GetNumberField(FString("y")), LocalOrientations[i]->AsObject()->GetNumberField(FString("z")),
+                    LocalOrientations[i]->AsObject()->GetNumberField(FString("w")));
+                FVector Position = ConvertCoordinateUnitToUE(CoordinateUnit, FVector(LocalPositions[i]->AsObject()->GetNumberField(FString("x")), LocalPositions[i]->AsObject()->GetNumberField(FString("y")),
+                    LocalPositions[i]->AsObject()->GetNumberField(FString("z"))));
 
                 if (Position.ContainsNaN())
                 {
@@ -183,7 +193,7 @@ FrameData::FrameData(FString frameData)
                 BoneTransform.Push(Transform);
             }
 
-            TArray< TSharedPtr<FJsonValue>> KeypointConfidence = JsonObject->GetArrayField("keypoint_confidence");
+            TArray< TSharedPtr<FJsonValue>> KeypointConfidence = JsonObject->GetArrayField(FString("keypoint_confidence"));
 
             for (int i = 0; i < NbKeypoints; i++)
             {
@@ -275,7 +285,6 @@ FTransform FrameData::ConvertCoordinateSystemToUE(EZEDCoordinateSystem InFrame, 
     out.SetFromMatrix(mat_out);
     return out;
 }
-
 
 //Convert vector to UE coordinate unit (centimeter)
 FVector FrameData::ConvertCoordinateUnitToUE(EZEDCoordinateUnit InUnit, FVector InVector)

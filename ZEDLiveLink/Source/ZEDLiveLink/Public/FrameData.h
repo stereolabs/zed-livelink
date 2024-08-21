@@ -74,11 +74,12 @@ public:
     EZEDTrackingState BodyTrackingState = EZEDTrackingState::Terminate;
     FrameData(FString frameData);
 
-
     bool bIsValid = false;
 
 private:
     void GetCoordinateTransform(EZEDCoordinateSystem coord_system, FMatrix& coordinateMatrix);
     FTransform ConvertCoordinateSystemToUE(EZEDCoordinateSystem InFrame, FTransform InTransform);
     FVector ConvertCoordinateUnitToUE(EZEDCoordinateUnit InUnit, FVector InVector);
+
+    void Deserialize(TSharedRef<TJsonReader<>> Reader);
 };

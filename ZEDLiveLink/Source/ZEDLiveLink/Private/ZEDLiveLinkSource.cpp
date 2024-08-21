@@ -143,9 +143,8 @@ uint32 FZEDLiveLinkSource::Run()
 			while (Socket->HasPendingData(Size))
 			{
 				int32 Read = 0;
-				RecvBuffer.SetNum(Size);
+				RecvBuffer.SetNumUninitialized(FMath::Min(Size, 65507u)); // max size of UDP packet
 				bool recv = Socket->RecvFrom(RecvBuffer.GetData(), RecvBuffer.Num(), Read, *Sender);
-
 				if (recv)
 				{
 					if (Read > 0)
@@ -198,7 +197,10 @@ void FZEDLiveLinkSource::ProcessReceivedData(TSharedPtr<TArray<uint8>> ReceivedD
 			else if (frameData.SubjectRole == ULiveLinkAnimationRole::StaticClass() && frameData.BodyTrackingState != EZEDTrackingState::Ok)
 			{
 				Client->RemoveSubject_AnyThread(Key);
-				Subjects.Remove(SubjectName);
+				FScopeLock Lock(&SubjectsCriticalSection);
+				{
+					Subjects.Remove(SubjectName);
+				}
 			}
 			else
 			{
@@ -219,10 +221,13 @@ void FZEDLiveLinkSource::ProcessReceivedData(TSharedPtr<TArray<uint8>> ReceivedD
 
 						if (Client->GetSources().Num() > 0)
 						{
-							Client->CreateSubject(Preset);
-							Client->SetSubjectEnabled(Key, true);
+							FScopeLock LockClient(&SubjectsCriticalSection);
+							{
+								Client->CreateSubject(Preset);
+								Client->SetSubjectEnabled(Key, true);
 
-							Subjects.Push(SubjectName);
+								Subjects.Push(SubjectName);
+							}
 
 							if (frameData.SubjectRole == ULiveLinkCameraRole::StaticClass())
 							{
@@ -293,11 +298,14 @@ void FZEDLiveLinkSource::UpdateAnimationStaticData(FName SubjectName, TArray<int
 
 void FZEDLiveLinkSource::ClearSubjects()
 {
-	while (Subjects.Num() > 0)
+	FScopeLock Lock(&SubjectsCriticalSection);
 	{
-		auto Subject = Subjects.Pop();
-		FLiveLinkSubjectKey KeyToRemove = FLiveLinkSubjectKey(SourceGuid, Subject);
-		Client->RemoveSubject_AnyThread(KeyToRemove);
+		while (Subjects.Num() > 0)
+		{
+			auto Subject = Subjects.Pop();
+			FLiveLinkSubjectKey KeyToRemove = FLiveLinkSubjectKey(SourceGuid, Subject);
+			Client->RemoveSubject_AnyThread(KeyToRemove);
+		}
 	}
 }
 
