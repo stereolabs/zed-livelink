@@ -1,5 +1,9 @@
 #include "GLViewer.hpp"
 
+#if defined(_DEBUG) && defined(_WIN32)
+#error "This sample should not be built in Debug mode, use RelWithDebInfo if you want to do step by step."
+#endif
+
 GLchar* VERTEX_SHADER =
 "#version 330 core\n"
 "layout(location = 0) in vec3 in_Vertex;\n"
