@@ -14,20 +14,24 @@
 
 
 FAnimNode_ZEDLiveLinkPose::FAnimNode_ZEDLiveLinkPose()
-    :
-    LiveLinkClient_AnyThread(nullptr),
-    CachedDeltaTime(0.0f),
-    bMirrorOnZAxis(false),
-    ManualHeightOffset(-1.f),
-    bStickAvatarOnFloor(false),
-    bEnableScaling(false),
-    SkeletalMesh(nullptr),
-    NbKeypoints(-1),
-    DurationOffsetErrorThreshold(3.0f),
-    DurationOffsetError(0.f),
-    PreviousTS_ms(0),
-    DistanceToFloorThreshold(0.f),
-    AutomaticHeightOffset(0.f)
+    : InputPose()
+    , LiveLinkSubjectName()
+    , SkeletalMesh(nullptr)
+    , BoneNameMap34()
+    , BoneNameMap38()
+    , CurBoneNameMap(nullptr)
+    , bMirrorOnZAxis(false)
+    , ManualHeightOffset(-1.f)
+    , bStickAvatarOnFloor(false)
+    , bEnableScaling(false)
+    , LiveLinkClient_AnyThread(nullptr)
+    , CachedDeltaTime(0.0f)
+    , NbKeypoints(-1)
+    , DurationOffsetErrorThreshold(3.0f)
+    , DurationOffsetError(0.f)
+    , PreviousTS_ms(0)
+    , DistanceToFloorThreshold(0.f)
+    , AutomaticHeightOffset(0.f)
 {
 }
 
