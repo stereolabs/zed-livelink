@@ -47,6 +47,8 @@ bool SenderRunner::open(sl::InputType input, sl::BODY_FORMAT body_format, ZEDFus
     body_tracking_parameters.body_format = zed_fusion_config.body_format;
     body_tracking_parameters.enable_body_fitting = false;
     body_tracking_parameters.enable_tracking = false;
+    body_tracking_parameters.max_range = zed_fusion_config.max_range;
+
     state = zed.enableBodyTracking(body_tracking_parameters);
     if (state != sl::ERROR_CODE::SUCCESS)
     {
@@ -57,7 +59,6 @@ bool SenderRunner::open(sl::InputType input, sl::BODY_FORMAT body_format, ZEDFus
     body_rt_params.detection_confidence_threshold = zed_fusion_config.detection_confidence;
     body_rt_params.minimum_keypoints_threshold = zed_fusion_config.minimum_keypoints_threshold;
     body_rt_params.skeleton_smoothing = 0;
-
     return true;
 }
 
