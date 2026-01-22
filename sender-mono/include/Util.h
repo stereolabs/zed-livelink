@@ -352,7 +352,7 @@ struct ZEDConfig {
 			case sl::InputType::INPUT_TYPE::USB_SERIAL: { // INPUT USB serial
 				int path = injson["InitParameters"]["input_path"].get<int>();
 				serial_number = path;
-				input.setFromSerialNumber(serial_number, sl::BUS_TYPE::USB);
+				input.setFromSerialNumber(serial_number);
 				std::cout << "Input : USB Serial" << std::endl;
 			}
 			case sl::InputType::INPUT_TYPE::GMSL_ID: { // INPUT GMSL id
@@ -366,7 +366,7 @@ struct ZEDConfig {
 			case sl::InputType::INPUT_TYPE::GMSL_SERIAL: { // INPUT GMSL serial
 				int path = injson["InitParameters"]["input_path"].get<int>();
 				serial_number = path;
-				input.setFromSerialNumber(serial_number, sl::BUS_TYPE::GMSL);
+				input.setFromSerialNumber(serial_number);
 				std::cout << "Input : GMSL Serial" << std::endl;
 			}
 			break;
