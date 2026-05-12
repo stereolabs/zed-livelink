@@ -138,12 +138,22 @@ void FrameData::Deserialize(TSharedRef<TJsonReader<>> Reader)
             }
 
             // Root transform of the skeleton
-            auto rootPositionJsonValue = JsonObject->GetObjectField(FString("global_root_posititon"));
-            FVector rootPosition = ConvertCoordinateUnitToUE(CoordinateUnit, FVector(rootPositionJsonValue->GetNumberField(FString("x")), rootPositionJsonValue->GetNumberField(FString("y")), rootPositionJsonValue->GetNumberField(FString("z"))));
+            const TSharedPtr<FJsonObject>* RootPositionField;
+            if (!JsonObject->TryGetObjectField(FString("global_root_posititon"), RootPositionField))
+            {
+                bIsValid = false;
+                return;
+            }
+            FVector rootPosition = ConvertCoordinateUnitToUE(CoordinateUnit, FVector((*RootPositionField)->GetNumberField(FString("x")), (*RootPositionField)->GetNumberField(FString("y")), (*RootPositionField)->GetNumberField(FString("z"))));
 
-            auto rootOrientationJsonValue = JsonObject->GetObjectField(FString("global_root_orientation"));
-            FQuat rootOrientation = FQuat(rootOrientationJsonValue->GetNumberField(FString("x")), rootOrientationJsonValue->GetNumberField(FString("y")), rootOrientationJsonValue->GetNumberField(FString("z")),
-                rootOrientationJsonValue->GetNumberField(FString("w")));
+            const TSharedPtr<FJsonObject>* RootOrientationField;
+            if (!JsonObject->TryGetObjectField(FString("global_root_orientation"), RootOrientationField))
+            {
+                bIsValid = false;
+                return;
+            }
+            FQuat rootOrientation = FQuat((*RootOrientationField)->GetNumberField(FString("x")), (*RootOrientationField)->GetNumberField(FString("y")), (*RootOrientationField)->GetNumberField(FString("z")),
+                (*RootOrientationField)->GetNumberField(FString("w")));
 
             if (rootPosition.ContainsNaN())
             {
@@ -156,6 +166,12 @@ void FrameData::Deserialize(TSharedRef<TJsonReader<>> Reader)
 
             TArray< TSharedPtr<FJsonValue>> LocalPositions = JsonObject->GetArrayField(FString("local_position_per_joint"));
             TArray< TSharedPtr<FJsonValue>> LocalOrientations = JsonObject->GetArrayField(FString("local_orientation_per_joint"));
+
+            if (LocalPositions.Num() < NbKeypoints || LocalOrientations.Num() < NbKeypoints)
+            {
+                bIsValid = false;
+                return;
+            }
 
             FTransform RootTransform;
             rootOrientation.Normalize();
@@ -194,6 +210,12 @@ void FrameData::Deserialize(TSharedRef<TJsonReader<>> Reader)
             }
 
             TArray< TSharedPtr<FJsonValue>> KeypointConfidence = JsonObject->GetArrayField(FString("keypoint_confidence"));
+
+            if (KeypointConfidence.Num() < NbKeypoints)
+            {
+                bIsValid = false;
+                return;
+            }
 
             for (int i = 0; i < NbKeypoints; i++)
             {

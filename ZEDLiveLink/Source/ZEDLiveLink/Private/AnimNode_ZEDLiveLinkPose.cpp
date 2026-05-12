@@ -10,8 +10,6 @@
 #include "ZEDSkeletonRetarget.h"
 #include "Roles/LiveLinkAnimationRole.h"
 #include "Roles/LiveLinkAnimationTypes.h"
-#include <chrono>
-
 
 FAnimNode_ZEDLiveLinkPose::FAnimNode_ZEDLiveLinkPose()
     : InputPose()
@@ -29,13 +27,12 @@ FAnimNode_ZEDLiveLinkPose::FAnimNode_ZEDLiveLinkPose()
     , NbKeypoints(-1)
     , DurationOffsetErrorThreshold(3.0f)
     , DurationOffsetError(0.f)
-    , PreviousTS_ms(0)
     , DistanceToFloorThreshold(0.f)
     , AutomaticHeightOffset(0.f)
 {
 }
 
-float FAnimNode_ZEDLiveLinkPose::ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData)
+float FAnimNode_ZEDLiveLinkPose::ComputeRootTranslationFactor(FCompactPose& OutPose, const TArray<FName, TMemStackAllocator<>>& TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData)
 {
     float avatarTotalTranslation = 0.f;
     float SDKTotalTranslation = 0.f;
@@ -67,6 +64,8 @@ float FAnimNode_ZEDLiveLinkPose::ComputeRootTranslationFactor(FCompactPose& OutP
         }
     }
 
+    if (SDKTotalTranslation < KINDA_SMALL_NUMBER)
+        return 1.f;
     float factor = avatarTotalTranslation / SDKTotalTranslation;
     float scale = 1.f;
     FCompactPoseBoneIndex CPIndexRoot = GetCPIndex(0, OutPose, TransformedBoneNames);
@@ -75,7 +74,7 @@ float FAnimNode_ZEDLiveLinkPose::ComputeRootTranslationFactor(FCompactPose& OutP
     return FMath::Abs(scale * factor);
 }
 
-FCompactPoseBoneIndex FAnimNode_ZEDLiveLinkPose::GetCPIndex(int32 idx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames) {
+FCompactPoseBoneIndex FAnimNode_ZEDLiveLinkPose::GetCPIndex(int32 idx, FCompactPose& OutPose, const TArray<FName, TMemStackAllocator<>>& TransformedBoneNames) {
     FName BoneName = TransformedBoneNames[idx];
     const int32 MeshIndex = OutPose.GetBoneContainer().GetPoseBoneIndexForBoneName(BoneName);
     if (MeshIndex != INDEX_NONE)
@@ -87,7 +86,7 @@ FCompactPoseBoneIndex FAnimNode_ZEDLiveLinkPose::GetCPIndex(int32 idx, FCompactP
     return (FCompactPoseBoneIndex)INDEX_NONE;
 }
 
-void FAnimNode_ZEDLiveLinkPose::PutInRefPose(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames) {
+void FAnimNode_ZEDLiveLinkPose::PutInRefPose(FCompactPose& OutPose, const TArray<FName, TMemStackAllocator<>>& TransformedBoneNames) {
     for (int32 i = 0; i < TransformedBoneNames.Num(); i++)
     {
         FCompactPoseBoneIndex CPIndex = GetCPIndex(i, OutPose, TransformedBoneNames);
@@ -99,7 +98,7 @@ void FAnimNode_ZEDLiveLinkPose::PutInRefPose(FCompactPose& OutPose, TArray<FName
     }
 }
 
-void FAnimNode_ZEDLiveLinkPose::PropagateRestPoseRotations(int32 parentIdx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, TArray<int32> SourceBoneParents, FQuat restPoseRot, bool inverse) {
+void FAnimNode_ZEDLiveLinkPose::PropagateRestPoseRotations(int32 parentIdx, FCompactPose& OutPose, const TArray<FName, TMemStackAllocator<>>& TransformedBoneNames, const TArray<int32>& SourceBoneParents, FQuat restPoseRot, bool inverse) {
     for (int32 i = 0; i < SourceBoneParents.Num(); i++) {
         FCompactPoseBoneIndex CPIndex = GetCPIndex(i, OutPose, TransformedBoneNames);
         if (SourceBoneParents[i] == parentIdx)
@@ -158,21 +157,25 @@ void FAnimNode_ZEDLiveLinkPose::BuildPoseFromZEDAnimationData(float DeltaTime,
             NbKeypoints = 38;
             Keypoints = Keypoints38;
             ParentsIdx = Parents38Idx;
+            CurBoneNameMap = &BoneNameMap38;
         }
     }
 
     // Find remapped bone names and cache them for fast subsequent retrieval.
     for (const FName& SrcBoneName : SourceBoneNames)
     {
-        if (!SrcBoneName.ToString().ToLower().Contains("conf") && !Keypoints.FindKey(SrcBoneName))
+        const FString SrcBoneStr = SrcBoneName.ToString();
+        const bool bIsConfBone = SrcBoneStr.Contains(TEXT("CONF"), ESearchCase::IgnoreCase);
+
+        if (!bIsConfBone && !Keypoints.FindKey(SrcBoneName))
         {
-            UE_LOG(LogTemp, Fatal, TEXT("Bone names mismatch between remap asset and live link sender. %s"), *SrcBoneName.ToString());
+            UE_LOG(LogTemp, Fatal, TEXT("Bone names mismatch between remap asset and live link sender. %s"), *SrcBoneStr);
         }
 
         FName* TargetBoneName = CurBoneNameMap->Find(SrcBoneName);
-        if (!SrcBoneName.ToString().ToLower().Contains("conf") && TargetBoneName == nullptr)
+        if (!bIsConfBone && TargetBoneName == nullptr)
         {
-            UE_LOG(LogTemp, Fatal, TEXT("Error in remap asset. Do not find remapped name of %s"), *SrcBoneName.ToString());
+            UE_LOG(LogTemp, Fatal, TEXT("Error in remap asset. Do not find remapped name of %s"), *SrcBoneStr);
         }
         else if (TargetBoneName)
         {
@@ -180,7 +183,6 @@ void FAnimNode_ZEDLiveLinkPose::BuildPoseFromZEDAnimationData(float DeltaTime,
         }
         else
             TransformedBoneNames.Add("");
-
     }
 
     // Apply an offset to put the feet of the ground and offset "floating" avatars.
@@ -223,20 +225,18 @@ void FAnimNode_ZEDLiveLinkPose::BuildPoseFromZEDAnimationData(float DeltaTime,
                 RightFootFloorDistance = (RightFootPosition + FVector(0, 0, AutomaticHeightOffset) - HitRightFoot.ImpactPoint).Z;
             }
 
-            if (abs(fminf(LeftFootFloorDistance, RightFootFloorDistance)) <= DistanceToFloorThreshold)
+            if (FMath::Abs(FMath::Min(LeftFootFloorDistance, RightFootFloorDistance)) <= DistanceToFloorThreshold)
             {
                 // Reset counter 
                 DurationOffsetError = 0;
             }
             else
             {
-                auto NowTS_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                DurationOffsetError += (NowTS_ms - PreviousTS_ms) / 1000.0f;
-                PreviousTS_ms = NowTS_ms;
+                DurationOffsetError += DeltaTime;
 
                 if (DurationOffsetError > DurationOffsetErrorThreshold)
                 {
-                    AutomaticHeightOffset = fmin(LeftFootFloorDistance, RightFootFloorDistance);
+                    AutomaticHeightOffset = FMath::Min(LeftFootFloorDistance, RightFootFloorDistance);
                     DurationOffsetError = 0;
 
                     //UE_LOG(LogTemp, Warning, TEXT("Recomputing offset ... %f"), AutomaticHeightOffset);
@@ -260,7 +260,7 @@ void FAnimNode_ZEDLiveLinkPose::BuildPoseFromZEDAnimationData(float DeltaTime,
     {
         FName BoneName = TransformedBoneNames[i];
 
-        if (!BoneName.ToString().ToLower().Contains("conf")) { // ignore kp confidence stored as kp
+        if (!BoneName.ToString().Contains(TEXT("CONF"), ESearchCase::IgnoreCase)) { // ignore kp confidence stored as kp
             FTransform BoneTransform = InFrameData->Transforms[i];
             FCompactPoseBoneIndex CPIndex = GetCPIndex(i, OutPose, TransformedBoneNames);
             if (CPIndex != INDEX_NONE)
@@ -312,8 +312,6 @@ void FAnimNode_ZEDLiveLinkPose::OnInitializeAnimInstance(const FAnimInstanceProx
 void FAnimNode_ZEDLiveLinkPose::Initialize_AnyThread(const FAnimationInitializeContext& Context)
 {
 	InputPose.Initialize(Context);
-
-    PreviousTS_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     if (bStickAvatarOnFloor)
     {

@@ -8,8 +8,6 @@
 #include "ILiveLinkClient.h"
 
 #include "CoreMinimal.h"
-#include <deque>
-#include <algorithm>
 
 #include "AnimNode_ZEDLiveLinkPose.generated.h"
 
@@ -67,14 +65,14 @@ protected:
 	virtual void OnInitializeAnimInstance(const FAnimInstanceProxy* InProxy, const UAnimInstance* InAnimInstance) override;
 
 private:
-	void PropagateRestPoseRotations(int32 parentIdx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, TArray<int32> SourceBoneParents, FQuat restPoseRot, bool inverse);
+	void PropagateRestPoseRotations(int32 parentIdx, FCompactPose& OutPose, const TArray<FName, TMemStackAllocator<>>& TransformedBoneNames, const TArray<int32>& SourceBoneParents, FQuat restPoseRot, bool inverse);
 
 	void BuildPoseFromZEDAnimationData(float DeltaTime, const FLiveLinkSkeletonStaticData* InSkeletonData,
 		const FLiveLinkAnimationFrameData* InFrameData,
 		FCompactPose& OutPose);
-	void PutInRefPose(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames);
-	FCompactPoseBoneIndex GetCPIndex(int32 idx, FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames);
-	float ComputeRootTranslationFactor(FCompactPose& OutPose, TArray<FName, TMemStackAllocator<>> TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData);
+	void PutInRefPose(FCompactPose& OutPose, const TArray<FName, TMemStackAllocator<>>& TransformedBoneNames);
+	FCompactPoseBoneIndex GetCPIndex(int32 idx, FCompactPose& OutPose, const TArray<FName, TMemStackAllocator<>>& TransformedBoneNames);
+	float ComputeRootTranslationFactor(FCompactPose& OutPose, const TArray<FName, TMemStackAllocator<>>& TransformedBoneNames, const FLiveLinkAnimationFrameData* InFrameData);
 
 	// This is the bone we will apply position translation to.
 	// The root in our case is the pelvis (0)
@@ -94,7 +92,6 @@ private:
 
     float DurationOffsetErrorThreshold = 3.0f;
     float DurationOffsetError = 0.0f;
-    long long PreviousTS_ms = 0;
 
     float DistanceToFloorThreshold = 1.0f; // cm
 

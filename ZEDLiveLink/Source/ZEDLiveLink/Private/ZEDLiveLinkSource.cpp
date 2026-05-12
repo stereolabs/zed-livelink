@@ -300,6 +300,7 @@ void FZEDLiveLinkSource::ClearSubjects()
 {
 	FScopeLock Lock(&SubjectsCriticalSection);
 	{
+		if (!Client) return;
 		while (Subjects.Num() > 0)
 		{
 			auto Subject = Subjects.Pop();
