@@ -145,7 +145,20 @@ int main(int argc, char **argv) {
     sl::BodyTrackingFusionParameters body_fusion_init_params;
     body_fusion_init_params.enable_tracking = true;
     body_fusion_init_params.enable_body_fitting = true;
-    fusion.enableBodyTracking(body_fusion_init_params);
+    // the fusion only knows a sender's body format once its first data has been
+    // received, so this call can fail right after subscribe (BODY FORMAT MISMATCH):
+    // retry until the senders are known instead of silently ignoring the error
+    sl::FUSION_ERROR_CODE body_tracking_state = sl::FUSION_ERROR_CODE::FAILURE;
+    for (int attempt = 0; attempt < 20 && !exit_app; attempt++) {
+        body_tracking_state = fusion.enableBodyTracking(body_fusion_init_params);
+        if (body_tracking_state == sl::FUSION_ERROR_CODE::SUCCESS) break;
+        std::cout << "enableBodyTracking failed: " << body_tracking_state << ", retrying..." << std::endl;
+        sl::sleep_ms(500);
+    }
+    if (body_tracking_state != sl::FUSION_ERROR_CODE::SUCCESS) {
+        std::cout << "Unable to enable Body Tracking fusion: " << body_tracking_state << ". Check that all senders use the same body_format." << std::endl;
+        return EXIT_FAILURE;
+    }
 
     // define fusion behavior 
     sl::BodyTrackingFusionRuntimeParameters body_tracking_runtime_parameters;
@@ -188,7 +201,17 @@ int main(int argc, char **argv) {
             if (zed_fusion_config.send_bodies)
             {
                 // Retrieve fused body
-                fusion.retrieveBodies(fused_bodies, body_tracking_runtime_parameters);
+                auto body_retrieve_state = fusion.retrieveBodies(fused_bodies, body_tracking_runtime_parameters);
+                // report state transitions (e.g. WRONG BODY FORMAT while a late
+                // sender is joining) without spamming the console every frame
+                static sl::FUSION_ERROR_CODE last_body_retrieve_state = sl::FUSION_ERROR_CODE::SUCCESS;
+                if (body_retrieve_state != last_body_retrieve_state) {
+                    if (body_retrieve_state != sl::FUSION_ERROR_CODE::SUCCESS)
+                        std::cout << "retrieveBodies failed: " << body_retrieve_state << std::endl;
+                    else
+                        std::cout << "retrieveBodies recovered" << std::endl;
+                    last_body_retrieve_state = body_retrieve_state;
+                }
                 // for debug, you can retrieve the data send by each camera
                 for (auto& id : cameras)
                     fusion.retrieveBodies(camera_raw_data[id], body_tracking_runtime_parameters, id);
